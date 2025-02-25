@@ -21,7 +21,7 @@ export const createSong = async (req, res, next) => {
     }
 
     const { title, artist, albumId, duration } = req.body;
-    console.log(req.body);
+    // console.log(req.body);
     const audioFile = req.files.audioFile;
     const imageFile = req.files.imageFile;
 

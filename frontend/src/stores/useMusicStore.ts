@@ -46,7 +46,7 @@ export const useMusicStore = create<MusicStore>((set) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await axiosInstance.get("/albums");
-      console.log(response.data);
+      // console.log(response.data);
       set({ albums: response.data });
     } catch (error: any) {
       set({ error: error.response.data.message });
@@ -72,7 +72,7 @@ export const useMusicStore = create<MusicStore>((set) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await axiosInstance.get("/songs/featured");
-      console.log(response.data);
+      // console.log(response.data);
       set({ featuredSongs: response.data });
     } catch (error: any) {
       set({ error: error.response.data.message });

@@ -6,8 +6,8 @@ import { useAuth, useUser } from "@clerk/clerk-react";
 import { axiosInstance } from "@/lib/axios";
 const AuthCallbackPage = () => {
   const { isLoaded, user } = useUser();
-  const { isSignedIn, userId } = useAuth();
-  console.log(user);
+  const { isSignedIn } = useAuth();
+  // console.log(user);
   const navigate = useNavigate();
   const syncAttempted = useRef(false);
 
@@ -41,7 +41,30 @@ const AuthCallbackPage = () => {
     };
 
     syncUser();
-  }, [isLoaded, user, navigate, isSignedIn]);
+  }, [isLoaded, user, isSignedIn]);
+
+  // const syncUser = async () => {
+  //   console.log("Sending user data to backend:", user);
+
+  //   if (!isLoaded || !user || syncAttempted.current) return;
+
+  //   try {
+  //     const response = await fetch("http://localhost:5000/auth/callback", {
+  //         method: "POST",
+  //         headers: {
+  //             "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify(user),
+  //     });
+
+  //     const data = await response.json();
+  //     console.log("Response from server:", data);
+  // } catch (error) {
+  //     console.error("Error syncing user:", error);
+  // }
+  
+  // };
+
   return (
     <div className="h-screen w-full bg-black flex items-center justify-center">
       <Card className="w-[90%] max-w-md bg-zinc-900 border-zinc-800">

@@ -14,7 +14,7 @@ const ChatHeader = () => {
 					<AvatarFallback>{selectedUser.fullName[0]}</AvatarFallback>
 				</Avatar>
 				<div>
-					<h2 className='font-medium'>{selectedUser.fullName}</h2>
+					<h2 className='font-medium'>{selectedUser.username}</h2>
 					<p className='text-sm text-zinc-400'>
 						{onlineUsers.has(selectedUser.clerkId) ? "Online" : "Offline"}
 					</p>

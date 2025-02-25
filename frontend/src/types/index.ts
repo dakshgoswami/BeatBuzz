@@ -29,11 +29,15 @@ export interface Stats {
 export interface Message {
 	_id: string;
 	senderId: string;
-	receiverId: string;
+	recieverId: string;
 	content: string;
+	fileUrl?: string; // URL of the attached file (if any)
+	fileType?: "image" | "video" | "document"; // Type of the attached file
 	createdAt: string;
 	updatedAt: string;
-}
+	username: string;
+  }
+  
 
 export interface User {
 	_id: string;
