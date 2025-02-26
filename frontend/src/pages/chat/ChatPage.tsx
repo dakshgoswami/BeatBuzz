@@ -69,6 +69,7 @@ const ChatPage = () => {
               <ScrollArea className="h-[calc(100vh-340px)] overflow-y-auto">
                 <div className="p-4 space-y-4">
                   {messages.map((message, index) => (
+                    console.log(message),
                     <div
                       key={message._id}
                       ref={index === messages.length - 1 ? lastMessageRef : null}
@@ -85,8 +86,8 @@ const ChatPage = () => {
                       </Avatar>
 
                       <div className={`rounded-lg p-3 max-w-[70%] ${message.senderId === user?.id ? "bg-green-500" : "bg-zinc-800"}`}>
-                        {message.content && <p className="text-sm">{message.content}</p>}
-                        {message.fileUrl && (
+                      {message.content && !message.fileUrl && <p className="text-sm">{message.content}</p>}
+                      {message.fileUrl && (
                           <div className="mt-2">
                             {message.fileType?.startsWith("image") ? (
                               <img src={message.fileUrl} alt="Sent file" className="max-w-xs rounded-lg" />

@@ -29,14 +29,15 @@ const MessageInput = () => {
   const handleSend = async () => {
     if (!selectedUser || !user || (!newMessage.trim() && selectedFiles.length === 0)) return;
 
-    if (newMessage.trim()) {
+    if (newMessage.trim() && selectedFiles.length === 0) {
       sendMessage(selectedUser.clerkId, user.id, newMessage.trim(), username);
+      // sendFileMessage(selectedUser.clerkId, user.id, selectedFiles, username);
       setNewMessage("");
     }
 
     if (selectedFiles.length > 0) {
       for (const file of selectedFiles) {
-        await sendFile(file);
+        sendFileMessage(selectedUser.clerkId, user.id, file, username);        //to send file 
       }
       setSelectedFiles([]); // Clear files after sending
     }
