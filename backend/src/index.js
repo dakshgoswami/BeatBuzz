@@ -1,6 +1,6 @@
+dotenv.config()
 import express from 'express'
 import dotenv from 'dotenv'
-dotenv.config()
 import { clerkMiddleware } from '@clerk/express'
 import fileUpload from 'express-fileupload'
 import path from 'path'

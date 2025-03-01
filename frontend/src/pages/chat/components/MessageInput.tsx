@@ -6,8 +6,6 @@ import { Send } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { GoPaperclip } from "react-icons/go";
 import { io } from "socket.io-client";
-import axios from "axios";
-import { axiosInstance } from "@/lib/axios";
 
 const MessageInput = () => {
   const [newMessage, setNewMessage] = useState("");
@@ -16,7 +14,7 @@ const MessageInput = () => {
   const { selectedUser, sendMessage, sendFileMessage } = useChatStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const socket = io("http://localhost:5000");
-  console.log(user);
+  // console.log(user);
 
   useEffect(() => {
     return () => {
@@ -28,16 +26,19 @@ const MessageInput = () => {
 
   const handleSend = async () => {
     if (!selectedUser || !user || (!newMessage.trim() && selectedFiles.length === 0)) return;
-
+    console.log(newMessage.trim());
+    console.log(selectedFiles);
     if (newMessage.trim() && selectedFiles.length === 0) {
       sendMessage(selectedUser.clerkId, user.id, newMessage.trim(), username);
-      // sendFileMessage(selectedUser.clerkId, user.id, selectedFiles, username);
       setNewMessage("");
     }
 
     if (selectedFiles.length > 0) {
       for (const file of selectedFiles) {
-        sendFileMessage(selectedUser.clerkId, user.id, file, username);        //to send file 
+        setTimeout(() => {
+          sendFileMessage(selectedUser.clerkId, user.id, file, username);  //to send file
+        }, 1000);
+        console.log(file); 
       }
       setSelectedFiles([]); // Clear files after sending
     }
@@ -56,33 +57,33 @@ const MessageInput = () => {
     setSelectedFiles((prevFiles) => [...prevFiles, ...Array.from(files)]);
   };
 
-  const sendFile = async (file: File) => {
-    if (!user || !selectedUser) return;
+  // const sendFile = async (file: File) => {
+  //   if (!user || !selectedUser) return;
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("senderId", user.id);
-    formData.append("recieverId", selectedUser.clerkId);
+  //   const formData = new FormData();
+  //   formData.append("file", file);
+  //   formData.append("senderId", user.id);
+  //   formData.append("recieverId", selectedUser.clerkId);
 
-    try {
-      const response = await axios.post(`${axiosInstance}/upload`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      console.log("File upload response:", response.data);
+  //   try {
+  //     const response = await axios.post(`${axiosInstance}/upload`, formData, {
+  //       headers: { "Content-Type": "multipart/form-data" },
+  //     });
+  //     console.log("File upload response:", response.data);
 
-      if (response.data.success) {
-        socket.emit("file_message", {
-          senderId: user.id,
-          recieverId: selectedUser.clerkId,
-          fileUrl: response.data.fileUrl,
-          fileName: file.name,
-          username: user.username,
-        });
-      }
-    } catch (error) {
-      console.error("File upload error:", error);
-    }
-  };
+  //     if (response.data.success) {
+  //       socket.emit("file_message", {
+  //         senderId: user.id,
+  //         recieverId: selectedUser.clerkId,
+  //         fileUrl: response.data.fileUrl,
+  //         fileName: file.name,
+  //         username: user.username,
+  //       });
+  //     }
+  //   } catch (error) {
+  //     console.error("File upload error:", error);
+  //   }
+  // };
 
   return (
     <div className="p-4 mt-auto border-t border-zinc-800">
@@ -117,7 +118,7 @@ const MessageInput = () => {
         </Button>
       </div>
       {selectedFiles.length > 0 && (
-        <div className="mt-2 text-white text-sm">
+        <div className="mt-1 text-white text-sm">
           <p>Files ready to send:</p>
           <ul>
             {selectedFiles.map((file, index) => (

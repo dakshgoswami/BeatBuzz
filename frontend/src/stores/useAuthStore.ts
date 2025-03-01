@@ -30,3 +30,4 @@ export const useAuthStore = create<AuthStore>((set) => ({
 		set({ isAdmin: false, isLoading: false, error: null });
 	},
 }));
+

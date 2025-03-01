@@ -4,9 +4,11 @@ import { useUser } from "@clerk/clerk-react";
 import { useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+import { useNavigate } from "react-router";
 
 const FriendsActivity = () => {
-  const { users, fetchUsers, onlineUsers, userActivities } = useChatStore();
+  const { users, fetchUsers, onlineUsers, userActivities, setSelectedUser } = useChatStore();
+  const navigate = useNavigate();
   // console.log(users);
   const { user } = useUser();
   useEffect(() => {
@@ -32,7 +34,9 @@ const FriendsActivity = () => {
               <div
                 key={user._id}
                 className="p-3 cursor-pointer hover:bg-zinc-800/50 rounded-md trsnsition-colors group"
-              >
+                onClick={() => (setSelectedUser(user), navigate('/chat'))}
+                
+                >
                 <div className="flex items-start gap-3">
                   <div className="relative flex items-center gap-3">
                     <Avatar className="size-10 border border-zinc-800 flex relative">

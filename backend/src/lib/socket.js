@@ -50,49 +50,33 @@ export const initializeSocket = (server) => {
     // Handle sending messages with or without files
     socket.on("send_message", async (data) => {
       try {
-        const { senderId, recieverId, content, fileName, fileType, username } =
+        const { senderId, recieverId, content, fileUrl, fileType, username } =
           data;
         console.log("Message received from socket", data);
-        // Check if senderId exists
-        if (!senderId) {
-          throw new Error("senderId is required");
+
+        // Ensure sender & receiver IDs exist
+        if (!senderId || !recieverId) {
+          throw new Error("senderId and recieverId are required");
         }
 
-        // Check if recieverId exists
-        if (!recieverId) {
-          throw new Error("recieverId is required");
-        }
-        let fileUrl = null;
-        if (fileName) {
-          fileUrl = `/uploads/${fileName}`;
-        }
-
-        // console.log("Message received from socket", data);
-
+        // Create message in database (without fileUrl duplication)
         const message = await Message.create({
           senderId,
           recieverId,
           content,
-          fileUrl,
+          fileUrl, // This should only come from `uploadFile`
           fileType,
         });
 
-        // Send to receiver in real-time, if online
+        // Send message to receiver if online
         const receiverSocketId = userSockets.get(recieverId);
         if (receiverSocketId) {
           io.to(receiverSocketId).emit("receive_message", message);
 
-          socket.on("receive_message", (message) => {
-            console.log("Received message:", message);
-            if (message.fileUrl) {
-              console.log("File URL received:", message.fileUrl);
-            }
-          });
-
-          // Send notification to the receiver
+          // Send notification
           io.to(receiverSocketId).emit("message_notification", {
-            username: username,
-            message: content || "📎 Sent a file", // Show text or file alert
+            username,
+            message: content || "📎 Sent a file",
           });
         }
 
@@ -103,43 +87,44 @@ export const initializeSocket = (server) => {
       }
     });
 
-    // Handle file upload separately
-    socket.on("upload_file", async (data, callback) => {
-      try {
-        console.log("File upload event triggered:", data);
+    // // Handle file upload separately
+    // socket.on("upload_file", async (data, callback) => {
+    //   try {
+    //     console.log("File upload event triggered:", data);
 
-        const { senderId, recieverId, file, fileName, fileType } = data;
-        if (!file || !fileName) {
-          throw new Error("No file data received.");
-        }
+    //     const { senderId, recieverId, file, fileName, fileType, username } =
+    //       data;
+    //     if (!file || !fileName) {
+    //       throw new Error("No file data received.");
+    //     }
 
-        const filePath = `uploads/${Date.now()}_${fileName}`;
-        const buffer = Buffer.from(file, "base64");
+    //     const filePath = `uploads/${fileName}`;
+    //     // const buffer = Buffer.from(file, "base64");
 
-        require("fs").writeFileSync(filePath, buffer);
+    //     require("fs").writeFileSync(filePath, file);
 
-        console.log("File successfully saved at:", filePath);
+    //     console.log("File successfully saved at:", filePath);
 
-        const message = await Message.create({
-          senderId,
-          recieverId,
-          content: "",
-          fileUrl: `/${filePath}`,
-          fileType,
-        });
+    //     const message = await Message.create({
+    //       senderId,
+    //       recieverId,
+    //       fileUrl: `/${filePath}`,
+    //       fileType,
+    //       username,
+    //     });
 
-        const receiverSocketId = userSockets.get(recieverId);
-        if (receiverSocketId) {
-          io.to(receiverSocketId).emit("receive_message", message);
-        }
+    //     const receiverSocketId = userSockets.get(recieverId);
+    //     if (receiverSocketId) {
+    //       io.to(receiverSocketId).emit("receive_message", message);
+    //     }
 
-        socket.emit("file_uploaded", message);
-        callback({ status: "success", fileUrl: `/${filePath}` });
-      } catch (error) {
-        console.error("File upload error:", error);
-        callback({ status: "error", message: error.message });
-      }
-    });
+    //     socket.emit("file_uploaded", message);
+    //     callback({ status: "success", fileUrl: `/${filePath}` });
+    //   } catch (error) {
+    //     console.error("File upload error:", error);
+    //     callback({ status: "error", message: error.message });
+    //   }
+    // });
 
     socket.on("typing", (data) => {
       const receiverSocketId = userSockets.get(data.recieverId);
@@ -164,3 +149,5 @@ export const initializeSocket = (server) => {
     });
   });
 };
+
+export default io;

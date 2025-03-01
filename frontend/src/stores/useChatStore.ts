@@ -19,13 +19,24 @@ interface ChatStore {
   fetchUsers: () => Promise<void>;
   initSocket: (userId: string) => void;
   disconnectSocket: () => void;
-  sendMessage: (recieverId: string, senderId: string, content: string, username: string) => void;
-  sendFileMessage: (recieverId: string, senderId: string, file: File, username: string) => void;
+  sendMessage: (
+    recieverId: string,
+    senderId: string,
+    content: string,
+    username: string
+  ) => void;
+  sendFileMessage: (
+    recieverId: string,
+    senderId: string,
+    file: File,
+    username: string
+  ) => void;
   fetchMessages: (userId: string) => Promise<void>;
   setSelectedUser: (user: User | null) => void;
 }
 
-const baseURL = import.meta.env.MODE === "development" ? "http://localhost:5000" : "/";
+const baseURL =
+  import.meta.env.MODE === "development" ? "http://localhost:5000" : "/";
 
 const socket = io(baseURL, {
   autoConnect: false,
@@ -109,14 +120,17 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       socket.on("message_notification", ({ username, message }) => {
         set((state) => {
           const notificationMessage = message || "📎 Sent a file";
-          toast.info(`📩 New message from ${username}: ${notificationMessage}`, {
-            position: "top-right",
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-          });
+          toast.info(
+            `📩 New message from ${username}: ${notificationMessage}`,
+            {
+              position: "top-right",
+              autoClose: 3000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+            }
+          );
           return state;
         });
       });
@@ -138,7 +152,9 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
     socket.emit("send_message", { recieverId, senderId, content, username });
 
-    const receiverSocketId = get().onlineUsers.has(recieverId) ? recieverId : null;
+    const receiverSocketId = get().onlineUsers.has(recieverId)
+      ? recieverId
+      : null;
     if (receiverSocketId) {
       socket.emit("message_notification", {
         username,
@@ -157,25 +173,31 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     formData.append("recieverId", recieverId);
 
     try {
+      // Upload file and get file URL
       const response = await axiosInstance.post("/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      const fileUrl = response.data.fileUrl;
+      const fileUrl = response.data.fileUrl; // Get stored file URL from backend
+
+      // Emit socket event WITHOUT saving fileUrl again in the database
       socket.emit("send_message", {
         recieverId,
         senderId,
-        content: fileUrl,
         username,
         fileName: file.name,
         fileType: file.type,
+        fileUrl, // Use the existing fileUrl from upload response
       });
 
-      const receiverSocketId = get().onlineUsers.has(recieverId) ? recieverId : null;
+      // Notify receiver if online
+      const receiverSocketId = get().onlineUsers.has(recieverId)
+        ? recieverId
+        : null;
       if (receiverSocketId) {
         socket.emit("message_notification", {
           username,
-          message: "📎 Sent a file",
+          message:  "📎 Sent a file",
         });
       }
     } catch (error) {
@@ -196,4 +218,3 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     }
   },
 }));
-

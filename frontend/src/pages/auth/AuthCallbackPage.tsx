@@ -25,6 +25,7 @@ const AuthCallbackPage = () => {
             imageUrl: user.imageUrl,
             emailAddresses: user.emailAddresses,
             username: user.username,
+            // isPremiumUser: user.isPremiumUser,
           });
 
           if (response.status === 200 && response.data.user) {

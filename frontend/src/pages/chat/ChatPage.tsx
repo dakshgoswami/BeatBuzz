@@ -90,7 +90,7 @@ const ChatPage = () => {
                       {message.fileUrl && (
                           <div className="mt-2">
                             {message.fileType?.startsWith("image") ? (
-                              <img src={message.fileUrl} alt="Sent file" className="max-w-xs rounded-lg" />
+                              <img src={message.fileUrl} className="max-w-xs max-h-[350px] rounded-lg w-full h-full object-cover"/>
                             ) : message.fileType?.startsWith("video") ? (
                               <video controls className="max-w-xs rounded-lg">
                                 <source src={message.fileUrl} type={message.fileType} />

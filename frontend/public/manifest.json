@@ -1,0 +1,12 @@
+{
+    "name": "My App",
+    "short_name": "App",
+    "start_url": "/",
+    "display": "standalone",
+    "serviceworker": {
+      "src": "/sw.js",
+      "scope": "/",
+      "type": "classic"
+    }
+  }
+  
