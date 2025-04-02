@@ -8,6 +8,9 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  define: {
+    global: "window", // Polyfill 'global' for simple-peer
+  },
   server: {
     port: 3001,
   },
