@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { protectRoute } from "../middleware/auth.middleware.js";
-import { getAllUsers, getMessages } from "../controller/user.controller.js";
+import { getAllUsers, getMessages, loginUser, signupUser, sendOtp, getCurrentUsers, getAllUsersForChat,updateProfile, forgotPassword, resetPassword } from "../controller/user.controller.js";
 // import { razorPayment, verifyPayment } from "../controller/user.controller.js";
 import User from "../models/user.model.js";
 // import Message from "../models/message.model.js";
@@ -17,8 +17,15 @@ const razorpayInstance = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
-router.get("/", protectRoute, getAllUsers);
+router.get("/", protectRoute, getAllUsersForChat);
+router.get("/allusers", protectRoute, getAllUsers);
+router.get("/current", protectRoute, getCurrentUsers);
+router.post("/update-profile", protectRoute, updateProfile);
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password/:token", resetPassword);
 router.get("/messages/:userId", protectRoute, getMessages);
+// router.post("/send-request/:userId", protectRoute, sendRequest);
+// router.post("/accept-request/:userId", protectRoute, acceptRequest);
 
 router.post("/payment", protectRoute, async (req, res) => {
   try {
@@ -120,7 +127,7 @@ router.post("/verifypayment", async (req, res) => {
 
     // ✅ Update User model (Ensure it updates correctly)
     const updatedUser = await User.findOneAndUpdate(
-      { clerkId: userId },
+      { _id: userId },
       { isPremiumUser: true },
       { new: true }
     );
@@ -143,4 +150,7 @@ router.post("/verifypayment", async (req, res) => {
   }
 });
 
+router.post("/signup", signupUser)
+router.post("/login", loginUser)
+router.post("/send-otp", sendOtp)
 export default router;

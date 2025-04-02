@@ -1,6 +1,6 @@
 import path from "path";
 import fs from "fs";
-import Message from "../models/message.model.js";
+// import Message from "../models/message.model.js";
 
 const __dirname = path.resolve();
 const userSockets = new Map(); // { userId: socketId}

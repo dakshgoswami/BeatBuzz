@@ -1,19 +1,25 @@
 import { HeadphonesIcon, Music, Users } from "lucide-react";
 import { useChatStore } from "@/stores/useChatStore";
-import { useUser } from "@clerk/clerk-react";
+// import { useUser } from "@clerk/clerk-react";
 import { useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { useNavigate } from "react-router";
 
 const FriendsActivity = () => {
-  const { users, fetchUsers, onlineUsers, userActivities, setSelectedUser } = useChatStore();
+  const { users, fetchUsers, onlineUsers, userActivities, setSelectedUser } =
+    useChatStore();
   const navigate = useNavigate();
   // console.log(users);
-  const { user } = useUser();
+  const user = localStorage.getItem("token");
   useEffect(() => {
     if (user) fetchUsers();
   }, [fetchUsers, user]);
+  
+  useEffect(() => {
+    // console.log("Online users updated:", onlineUsers);
+  }, [onlineUsers]);
+
   return (
     <div className="h-full bg-zinc-900 rounded-lg flex flex-col">
       <div className="p-4 flex justify-between items-center border-b border-zinc-800">
@@ -26,30 +32,33 @@ const FriendsActivity = () => {
       {!user && <LoginPrompt />}
 
       <ScrollArea className="flex-1">
-        <div className="p-4 space-y-4">
+       {users.length > 0 ? (
+          <div className="p-4 space-y-4">
           {users.map((user) => {
-            const activity = userActivities.get(user.clerkId);
+            // console.log(user);
+            const activity = userActivities.get(user._id);
+            // console.log(userActivities);
             const isPlaying = activity && activity !== "Idle";
             return (
               <div
                 key={user._id}
                 className="p-3 cursor-pointer hover:bg-zinc-800/50 rounded-md trsnsition-colors group"
-                onClick={() => (setSelectedUser(user), navigate('/chat'))}
-                
-                >
+                onClick={() => (setSelectedUser(user), navigate("/chat"))}
+              >
                 <div className="flex items-start gap-3">
                   <div className="relative flex items-center gap-3">
-                    <Avatar className="size-10 border border-zinc-800 flex relative">
+                    <Avatar className="size-10 border border-zinc-800 flex relative overflow-hidden rounded-full">
                       <AvatarImage
                         src={user.imageUrl}
                         alt={user.fullName}
                         className="object-cover rounded-full size-10"
+                        style={{ objectFit: "cover", objectPosition: "center" }}
                       />
                       <AvatarFallback>{user.fullName[0]}</AvatarFallback>
                     </Avatar>
                     <div
                       className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-zinc-900  ${
-                        onlineUsers.has(user.clerkId)
+                        onlineUsers.has(user._id)
                           ? "bg-green-500"
                           : "bg-gray-500"
                       }`}
@@ -84,6 +93,21 @@ const FriendsActivity = () => {
             );
           })}
         </div>
+       ):(
+        <div className="flex flex-col items-center justify-center mt-[14.5rem] h-full space-y-6">
+							<img
+								src="/bb.png"
+								alt="BeatBuzz"
+								className="size-12 animate-bounce rounded-full"
+							/>
+							<div className="text-center">
+								<h3 className="text-zinc-300 text-lg font-medium mb-1">
+									No Online Users
+								</h3>
+								<p className="text-zinc-500 text-sm">Wait for users to join</p>
+							</div>
+						</div>
+       )}
       </ScrollArea>
     </div>
   );

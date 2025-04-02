@@ -23,8 +23,21 @@ interface MusicStore {
   fetchSongs: () => Promise<void>;
   deleteSong: (id: string) => Promise<void>;
   deleteAlbum: (id: string) => Promise<void>;
-
 }
+
+interface MusicState {
+  currentSongId: string | null;
+  playingUsers: string[]; // Array of user IDs
+  setCurrentSong: (songId: string | null) => void;
+  setPlayingUsers: (users: string[]) => void;
+}
+
+export const useMusicState = create<MusicState>((set) => ({
+  currentSongId: null,
+  playingUsers: [],
+  setCurrentSong: (songId) => set({ currentSongId: songId }),
+  setPlayingUsers: (users) => set({ playingUsers: users }),
+}));
 
 export const useMusicStore = create<MusicStore>((set) => ({
   albums: [],
@@ -45,7 +58,9 @@ export const useMusicStore = create<MusicStore>((set) => ({
   fetchAlbums: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axiosInstance.get("/albums");
+      const response = await axiosInstance.get("/albums", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
       // console.log(response.data);
       set({ albums: response.data });
     } catch (error: any) {
@@ -58,8 +73,10 @@ export const useMusicStore = create<MusicStore>((set) => ({
   fetchAlbumById: async (id: string) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axiosInstance.get(`/albums/${id}`);
-      console.log(response.data);
+      const response = await axiosInstance.get(`/albums/${id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      // console.log(response.data);
       set({ currentAlbum: response.data });
     } catch (error: any) {
       set({ error: error.response.data.message });
@@ -71,7 +88,9 @@ export const useMusicStore = create<MusicStore>((set) => ({
   fetchFeaturedSongs: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axiosInstance.get("/songs/featured");
+      const response = await axiosInstance.get("/songs/featured", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
       // console.log(response.data);
       set({ featuredSongs: response.data });
     } catch (error: any) {
@@ -84,9 +103,11 @@ export const useMusicStore = create<MusicStore>((set) => ({
   fetchMadeForYouSongs: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axiosInstance.get("/songs/made-for-you");
+      const response = await axiosInstance.get("/songs/made-for-you", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
       set({ madeForYouSongs: response.data });
-      console.log(response.data);
+      // console.log(response.data);
     } catch (error: any) {
       set({ error: error.response.data.message });
     } finally {
@@ -97,9 +118,11 @@ export const useMusicStore = create<MusicStore>((set) => ({
   fetchTrendingSongs: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axiosInstance.get("/songs/trending");
+      const response = await axiosInstance.get("/songs/trending", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
       set({ trendingSongs: response.data });
-      console.log(response.data);
+      // console.log(response.data);
     } catch (error: any) {
       set({ error: error.response.data.message });
     } finally {
@@ -110,7 +133,9 @@ export const useMusicStore = create<MusicStore>((set) => ({
   fetchStats: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axiosInstance.get("/stats");
+      const response = await axiosInstance.get("/stats", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
       set({ stats: response.data });
     } catch (error: any) {
       set({ error: error.message });
@@ -122,7 +147,9 @@ export const useMusicStore = create<MusicStore>((set) => ({
   fetchSongs: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axiosInstance.get("/songs");
+      const response = await axiosInstance.get("/songs", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
       set({ songs: response.data });
     } catch (error: any) {
       set({ error: error.message });
@@ -132,37 +159,43 @@ export const useMusicStore = create<MusicStore>((set) => ({
   },
 
   deleteSong: async (id) => {
-		set({ isLoading: true, error: null });
-		try {
-			await axiosInstance.delete(`/admin/songs/${id}`);
+    set({ isLoading: true, error: null });
+    try {
+      await axiosInstance.delete(`/admin/songs/${id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
 
-			set((state) => ({
-				songs: state.songs.filter((song) => song._id !== id),
-			}));
-			toast.success("Song deleted successfully");
-		} catch (error: any) {
-			console.log("Error in deleteSong", error);
-			toast.error("Error deleting song");
-		} finally {
-			set({ isLoading: false });
-		}
-	},
+      set((state) => ({
+        songs: state.songs.filter((song) => song._id !== id),
+      }));
+      toast.success("Song deleted successfully");
+    } catch (error: any) {
+      // console.log("Error in deleteSong", error);
+      toast.error("Error deleting song");
+    } finally {
+      set({ isLoading: false });
+    }
+  },
 
   deleteAlbum: async (id) => {
-		set({ isLoading: true, error: null });
-		try {
-			await axiosInstance.delete(`/admin/albums/${id}`);
-			set((state) => ({
-				albums: state.albums.filter((album) => album._id !== id),
-				songs: state.songs.map((song) =>
-					song.albumId === state.albums.find((a) => a._id === id)?.title ? { ...song, album: null } : song
-				),
-			}));
-			toast.success("Album deleted successfully");
-		} catch (error: any) {
-			toast.error("Failed to delete album: " + error.message);
-		} finally {
-			set({ isLoading: false });
-		}
-	},
+    set({ isLoading: true, error: null });
+    try {
+      await axiosInstance.delete(`/admin/albums/${id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      set((state) => ({
+        albums: state.albums.filter((album) => album._id !== id),
+        songs: state.songs.map((song) =>
+          song.albumId === state.albums.find((a) => a._id === id)?.title
+            ? { ...song, album: null }
+            : song
+        ),
+      }));
+      toast.success("Album deleted successfully");
+    } catch (error: any) {
+      toast.error("Failed to delete album: " + error.message);
+    } finally {
+      set({ isLoading: false });
+    }
+  },
 }));

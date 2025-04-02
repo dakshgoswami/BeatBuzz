@@ -41,7 +41,11 @@ export interface Message {
 
 export interface User {
 	_id: string;
-	clerkId: string;
 	fullName: string;
 	imageUrl: string;
+	username: string;
+	createdAt: string;
+	updatedAt: string;
+	email: string;
+	isPremiumUser: boolean;
 }

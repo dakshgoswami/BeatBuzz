@@ -3,7 +3,7 @@ import { Message } from "../models/message.model.js";
 import { io } from "socket.io-client";
 import multer from "multer";
 import path from "path";
-
+import jwt from "jsonwebtoken";
 export const socket = io("http://localhost:5000");
 
 // Configure multer for file uploads
@@ -24,27 +24,53 @@ export const initializeSocket = (server) => {
       credentials: true,
     },
   });
-
   const userSockets = new Map(); // { userId: socketId}
   const userActivities = new Map(); // { userId: activity }
 
   io.on("connection", (socket) => {
-    socket.on("user_connected", (userId) => {
-      userSockets.set(userId, socket.id);
-      userActivities.set(userId, "Idle");
-
-      // Notify all users that this user is online
-      io.emit("user_connected", userId);
-      socket.emit("users_online", Array.from(userSockets.keys()));
-
-      // Send user activity updates
-      io.emit("activities", Array.from(userActivities.entries()));
+    // console.log("Socket connected:", socket.id);
+    socket.on("user_connected", () => {
+      try {
+        const token = socket.handshake.auth?.token;
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const userId = decoded.userId;
+  
+        // ✅ Ensure multiple sockets per user
+        if (!userSockets.has(userId)) {
+          userSockets.set(userId, new Set());
+        }
+  
+        // ✅ Remove old socket IDs before adding a new one (to prevent memory leaks)
+        userSockets.get(userId).delete(socket.id);
+        userSockets.get(userId).add(socket.id);
+  
+        // console.log("🟢 User connected:", userId, "Sockets:", [...userSockets.get(userId)]);
+        io.emit("users_online", Array.from(userSockets.keys()));
+  
+      } catch (error) {
+        console.error("❌ Authentication Error:", error.message);
+        socket.disconnect();
+      }
     });
 
-    socket.on("update_activity", ({ userId, activity }) => {
-      //   console.log("Activity updated", userId, activity);
-      userActivities.set(userId, activity);
-      io.emit("activity_updated", { userId, activity });
+    socket.on("update_activity", ({ activity }) => {
+      try {
+        const token = socket.handshake.auth?.token;
+        let decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        const userId = decoded.userId;
+        // Ensure multiple sockets per user
+        if (!userSockets.has(userId)) {
+          // userSockets.set(userId, new Set());
+          userActivities.set(userId, activity);
+        }
+
+        // console.log("Activity updated", userId, activity);
+        io.emit("activity_updated", { userId, activity });
+      } catch (error) {
+        console.error("❌ Socket Error:", error.message);
+        socket.disconnect();
+      }
     });
 
     // Handle sending messages with or without files
@@ -52,41 +78,43 @@ export const initializeSocket = (server) => {
       try {
         const { senderId, recieverId, content, fileUrl, fileType, username } =
           data;
-        console.log("Message received from socket", data);
+        // console.log("📩 Backend received message:", data);
 
-        // Ensure sender & receiver IDs exist
         if (!senderId || !recieverId) {
-          throw new Error("senderId and recieverId are required");
+          console.error("❌ senderId or recieverId missing");
+          return;
         }
 
-        // Create message in database (without fileUrl duplication)
         const message = await Message.create({
           senderId,
           recieverId,
           content,
-          fileUrl, // This should only come from `uploadFile`
+          fileUrl,
           fileType,
         });
+        
+        io.to(socket.id).emit("receive_message", message);
 
-        // Send message to receiver if online
-        const receiverSocketId = userSockets.get(recieverId);
-        if (receiverSocketId) {
-          io.to(receiverSocketId).emit("receive_message", message);
-
-          // Send notification
-          io.to(receiverSocketId).emit("message_notification", {
-            username,
+        const receiverSocketIds = userSockets.get(recieverId) || new Set();
+        receiverSocketIds.forEach((socketId) => {
+          io.to(socketId).emit("receive_message", message);
+          io.to(socketId).emit("message_notification", {
             message: content || "📎 Sent a file",
+            username: username || "Buddy",
           });
-        }
-
-        socket.emit("message_sent", message);
+        });
+        
+        // socket.emit("message_notification", {
+        //   message: content || "📎 Sent a file",
+        //   username: username || "Buddy",
+        // });
+        
       } catch (error) {
-        console.error("Message error:", error);
+        console.error("❌ Message error:", error);
         socket.emit("message_error", error.message);
       }
     });
-
+    
     // // Handle file upload separately
     // socket.on("upload_file", async (data, callback) => {
     //   try {
@@ -134,18 +162,18 @@ export const initializeSocket = (server) => {
     });
 
     socket.on("disconnect", () => {
-      let disconnectedUserId;
-      for (const [userId, socketId] of userSockets.entries()) {
-        if (socketId === socket.id) {
-          disconnectedUserId = userId;
-          userSockets.delete(userId);
-          userActivities.delete(userId);
+      for (const [userId, sockets] of userSockets.entries()) {
+        if (sockets.has(socket.id)) {
+          sockets.delete(socket.id);
+          if (sockets.size === 0) {
+            userSockets.delete(userId);
+          }
           break;
         }
       }
-      if (disconnectedUserId) {
-        io.emit("user_disconnected", disconnectedUserId);
-      }
+
+      // console.log("🚪 User Disconnected:", socket.id);
+      io.emit("users_online", Array.from(userSockets.keys()));
     });
   });
 };

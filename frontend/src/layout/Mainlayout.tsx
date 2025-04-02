@@ -10,28 +10,29 @@ import FriendsActivity from "./components/FriendsActivity";
 import { PlaybackControls } from "./components/PlaybackControls";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import  useUserFetchStore  from "@/stores/fetchUserStore";
-import { useAuth } from "@clerk/clerk-react";
+import useUserFetchStore from "@/stores/fetchUserStore";
+// import { useAuth } from "@clerk/clerk-react";
 const Mainlayout = () => {
   const { isPremium, showAd, setShowAd } = useUserFetchStore();
+  // console.log("isPremium", isPremium);
   const [isMobile, setIsMobile] = useState(false);
   const navigate = useNavigate();
-  const { getToken } = useAuth(); // Get token inside component
+  // const { getToken } = useAuth(); // Get token inside component
+  const token = localStorage.getItem("token");
   const fetchUser = useUserFetchStore((state) => state.fetchUser);
 
   useEffect(() => {
     const fetchData = async () => {
-      const token = await getToken();
       if (token) {
         fetchUser(token); // Pass token to Zustand function
       }
     };
 
     fetchData();
-  }, [getToken, fetchUser]);
+  }, [token, fetchUser]);
 
   useEffect(() => {
-    if (!isPremium) {
+    if (!isPremium && token) {
       const interval = setInterval(() => {
         setShowAd(true);
       }, 60000); // Show ad every 60 seconds
@@ -53,7 +54,7 @@ const Mainlayout = () => {
         {/* Ad Overlay - Only for Non-Premium Users */}
         {showAd && !isPremium && (
           <div className="absolute inset-0 bg-gray-900 bg-opacity-80 flex items-center justify-center z-50">
-            <div className="bg-gray-800 p-4 rounded-lg shadow-lg flex flex-col items-center justify-between w-1/3 relative">
+            <div className="bg-gray-800 p-4 rounded-lg shadow-lg flex flex-col items-center justify-between max-sm:w-2/3 w-1/3 relative">
               <div>
                 <img src="/ad.jpg" alt="" />
                 <button
@@ -64,11 +65,11 @@ const Mainlayout = () => {
                 </button>
               </div>
               <div className="flex justify-center flex-col items-center mt-4">
-                <span className="text-white text-sm">
+                <span className="text-white text-sm max-sm:text-xs text-center">
                   🚀 Special Offer! Get Premium Now
                 </span>
                 <button
-                  className="bg-green-500 text-white px-4 py-2 rounded-lg mt-4"
+                  className="bg-green-500 text-white px-4 py-2 rounded-lg mt-4 max-sm:px-2 max-sm:text-sm"
                   onClick={() => navigate("/premium")}
                 >
                   Upgrade Now
@@ -91,9 +92,10 @@ const Mainlayout = () => {
             <AudioPlayer />
             {/* left sidebar */}
             <ResizablePanel
-              defaultSize={20}
-              minSize={isMobile ? 0 : 10}
-              maxSize={30}
+              defaultSize={16}
+              minSize={isMobile ? 0 : 0}
+              maxSize={20}
+              className="max-sm:max-w-[60px]"
             >
               <LeftSidebar />
             </ResizablePanel>
@@ -104,13 +106,14 @@ const Mainlayout = () => {
             </ResizablePanel>
             {!isMobile && (
               <>
-                <ResizableHandle className="w-2 bg-black rounded-lg transition-colors" />
+                <ResizableHandle className="w-2 bg-black rounded-lg transition-colors max-sm:hidden" />
                 {/* right sidebar */}
                 <ResizablePanel
                   defaultSize={20}
                   minSize={0}
                   maxSize={25}
                   collapsedSize={0}
+                  className="max-sm:hidden"
                 >
                   <FriendsActivity />
                 </ResizablePanel>

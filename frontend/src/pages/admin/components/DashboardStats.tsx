@@ -7,28 +7,28 @@ const DashboardStats = () => {
 
 	const statsData = [
 		{
-			icon: ListMusic,
+			icon: Library,
 			label: "Total Albums",
 			value: stats.totalSongs.toString(),
 			bgColor: "bg-emerald-500/10",
 			iconColor: "text-emerald-500",
 		},
 		{
-			icon: Library,
+			icon: ListMusic,
 			label: "Total Songs",
 			value: stats.totalAlbums.toString(),
 			bgColor: "bg-violet-500/10",
 			iconColor: "text-violet-500",
 		},
 		{
-			icon: Users2,
+			icon: PlayCircle,
 			label: "Total Artists",
 			value: stats.totalArtists.toString(),
 			bgColor: "bg-orange-500/10",
 			iconColor: "text-orange-500",
 		},
 		{
-			icon: PlayCircle,
+			icon: Users2,
 			label: "Total Users",
 			value: stats.totalUsers.toLocaleString(),
 			bgColor: "bg-sky-500/10",

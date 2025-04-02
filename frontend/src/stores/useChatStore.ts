@@ -4,6 +4,9 @@ import { Message } from "@/types";
 import { User } from "@/types";
 import { io } from "socket.io-client";
 import { toast } from "react-toastify";
+import axios from "axios";
+import { useMusicState } from "./useMusicStore";
+// import useUserFetchStore from "./fetchUserStore";
 
 interface ChatStore {
   users: any[];
@@ -15,7 +18,10 @@ interface ChatStore {
   userActivities: Map<string, string>;
   messages: Message[];
   selectedUser: User | null;
-
+  isCalling: boolean;
+  setCalling: (calling: boolean) => void;
+  user: string | null;
+  currentUser: any;
   fetchUsers: () => Promise<void>;
   initSocket: (userId: string) => void;
   disconnectSocket: () => void;
@@ -37,15 +43,22 @@ interface ChatStore {
 
 const baseURL =
   import.meta.env.MODE === "development" ? "http://localhost:5000" : "/";
-
+// console.log(localStorage.getItem("token"));
 const socket = io(baseURL, {
   autoConnect: false,
   withCredentials: true,
+  auth: {
+    token: localStorage.getItem("token"),
+  },
 });
 
+// const { currentUser } = useUserFetchStore();
 export const useChatStore = create<ChatStore>((set, get) => ({
   users: [],
+  currentUser: null,
   isLoading: false,
+  isCalling: false,
+  setCalling: (calling) => set({ isCalling: calling }),
   error: null,
   socket: socket,
   isConnected: false,
@@ -53,42 +66,54 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   userActivities: new Map(),
   messages: [],
   selectedUser: null,
-
+  user: localStorage.getItem("userId"),
   setSelectedUser: (user) => set({ selectedUser: user }),
-
   fetchUsers: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axiosInstance.get("/users");
-      set({ users: response.data });
+      const token = localStorage.getItem("token");
+      const response = await axios.get("http://localhost:5000/api/users", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      // console.log(response.data);
+      set({ users: response?.data });
+      // console.log("Users fetched:", response.data);
     } catch (error: any) {
       set({ error: error.response.data.message });
     } finally {
       set({ isLoading: false });
     }
   },
-
   initSocket: (userId) => {
+    // const userId = localStorage.getItem("userId");
+    // console.log(userId); // MongoDB `_id` ko fetch karein
     if (!get().isConnected) {
-      socket.auth = { userId };
+      socket.auth = { token: localStorage.getItem("token") };
       socket.connect();
 
-      socket.emit("user_connected", userId);
+      socket.on("connect", () => {
+        // console.log("🔗 Socket Connected:", socket.id);
+        socket.emit("user_connected", userId);
+      });
 
       socket.on("users_online", (users: string[]) => {
-        set({ onlineUsers: new Set(users) });
+        // console.log("Online Users List:", users);
+        set(() => ({ onlineUsers: new Set(users) })); // ✅ Server se milne wali list ko update kar raha hai
       });
 
       socket.on("activities", (activities: [string, string][]) => {
+        // console.log("User activities received:", activities);
         set({ userActivities: new Map(activities) });
       });
 
       socket.on("user_connected", (userId: string) => {
+        // console.log("User connected event received:", userId);
         set((state) => ({
           onlineUsers: new Set([...state.onlineUsers, userId]),
         }));
       });
-
       socket.on("user_disconnected", (userId: string) => {
         set((state) => {
           const newOnlineUsers = new Set(state.onlineUsers);
@@ -97,15 +122,26 @@ export const useChatStore = create<ChatStore>((set, get) => ({
         });
       });
 
-      socket.on("receive_message", (message: Message) => {
-        set((state) => ({
-          messages: [...state.messages, message],
-        }));
+      socket.on("receive_message", (message) => {
+        set((state) => {
+          if (
+            state.selectedUser &&
+            (state.selectedUser._id === message.recieverId ||
+              state.selectedUser._id === message.senderId)
+          ) {
+            return { messages: [...state.messages, message] }; // Update chat immediately
+          }
+          return state; // Do nothing if the chat is not open
+        });
       });
+
+      // console.log("Message event listener added");
 
       socket.on("message_sent", (message: Message) => {
         set((state) => ({
-          messages: [...state.messages, message],
+          messages: Array.isArray(state.messages)
+            ? [...state.messages, message]
+            : [message],
         }));
       });
 
@@ -117,7 +153,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
         });
       });
 
-      socket.on("message_notification", ({ username, message }) => {
+      socket.on("message_notification", ({ message, username }) => {
         set((state) => {
           const notificationMessage = message || "📎 Sent a file";
           toast.info(
@@ -149,16 +185,18 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   sendMessage: async (recieverId, senderId, content, username) => {
     const socket = get().socket;
     if (!socket) return;
-
+    console.log(recieverId, senderId, content, username);
     socket.emit("send_message", { recieverId, senderId, content, username });
 
     const receiverSocketId = get().onlineUsers.has(recieverId)
       ? recieverId
       : null;
+    // console.log("Receiver Socket ID:", receiverSocketId);
     if (receiverSocketId) {
+      // console.log("Sending message notification to receiver:", recieverId);
       socket.emit("message_notification", {
-        username,
         message: content || "📎 Sent a file",
+        username: username || "Buddy",
       });
     }
   },
@@ -197,7 +235,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       if (receiverSocketId) {
         socket.emit("message_notification", {
           username,
-          message:  "📎 Sent a file",
+          message: "📎 Sent a file",
         });
       }
     } catch (error) {
@@ -209,8 +247,11 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   fetchMessages: async (userId: string) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axiosInstance.get(`/users/messages/${userId}`);
-      set({ messages: response.data });
+      const response = await axiosInstance.get(`/users/messages/${userId}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      set({ messages: response.data.messages });
+      // console.log('from messages',response.data);
     } catch (error: any) {
       set({ error: error.response.data.message });
     } finally {

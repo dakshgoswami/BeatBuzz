@@ -6,7 +6,7 @@ import { Pause, Play } from "lucide-react";
 const PlayButton = ({ song }: { song: Song }) => {
 	const { currentSong, isPlaying, setCurrentSong, togglePlay } = usePlayerStore();
 	const isCurrentSong = currentSong?._id === song._id;
-
+	console.log(currentSong);
 	const handlePlay = () => {
 		if (isCurrentSong) togglePlay();
 		else setCurrentSong(song);
@@ -16,8 +16,8 @@ const PlayButton = ({ song }: { song: Song }) => {
 		<Button
 			size={"icon"}
 			onClick={handlePlay}
-			className={`absolute bottom-3 right-2 bg-green-500 hover:bg-green-400 hover:scale-105 transition-all 
-				opacity-0 translate-y-2 group-hover:translate-y-0 ${
+			className={`absolute bottom-3 right-2 max-sm:right-1 max-sm:bottom-1 bg-green-500 hover:bg-green-400 hover:scale-105 transition-all 
+				opacity-0 translate-y-12 group-hover:translate-y-0 max-sm:size-7 ${
 					isCurrentSong ? "opacity-100" : "opacity-0 group-hover:opacity-100"
 				}`}
 		>

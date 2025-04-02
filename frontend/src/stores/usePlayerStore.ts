@@ -15,13 +15,12 @@ interface PlayerStore {
 	playNext: () => void;
 	playPrevious: () => void;
 }
-
 export const usePlayerStore = create<PlayerStore>((set, get) => ({
 	currentSong: null,
 	isPlaying: false,
 	queue: [],
 	currentIndex: -1,
-
+	
 	initializeQueue: (songs: Song[]) => {
 		set({
 			queue: songs,
@@ -29,12 +28,12 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
 			currentIndex: get().currentIndex === -1 ? 0 : get().currentIndex,
 		});
 	},
-
+	
 	playAlbum: (songs: Song[], startIndex = 0) => {
 		if (songs.length === 0) return;
-
+		
 		const song = songs[startIndex];
-
+		
 		const socket = useChatStore.getState().socket;
 		if (socket.auth) {
 			socket.emit("update_activity", {

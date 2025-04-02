@@ -1,6 +1,7 @@
 import { Song } from "@/types";
 // import SectionGridSkeleton from "./SectionGridSkeleton";
 import { Button } from "@/components/ui/button";
+import PlayButton from "./PlayButton";
 // import PlayButton from "./PlayButton";
 
 type SectionGridProps = {
@@ -13,9 +14,9 @@ const SectionGrid = ({ songs, title, isLoading }: SectionGridProps) => {
 
 	return (
 		<div className='mb-8'>
-			<div className='flex items-center justify-between mb-4'>
-				<h2 className='text-xl sm:text-2xl font-bold'>{title}</h2>
-				<Button variant='link' className='text-sm text-zinc-400 hover:text-white'>
+			<div className='flex items-center justify-between mb-4 max-sm:flex-col max-sm:items-start'>
+				<h2 className='text-xl max-sm:text-2xl font-bold'>{title}</h2>
+				<Button variant='link' className='text-sm text-zinc-400 hover:text-white max-sm:-ml-[14px]'>
 					Show all
 				</Button>
 			</div>
@@ -35,7 +36,7 @@ const SectionGrid = ({ songs, title, isLoading }: SectionGridProps) => {
 									group-hover:scale-105'
 								/>
 							</div>
-							{/* <PlayButton song={song} /> */}
+							<PlayButton song={song} />
 						</div>
 						<h3 className='font-medium mb-2 truncate'>{song.title}</h3>
 						<p className='text-sm text-zinc-400 truncate'>{song.artist}</p>

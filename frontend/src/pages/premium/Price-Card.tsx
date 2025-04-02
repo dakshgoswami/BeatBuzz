@@ -2,10 +2,10 @@ import "./Price-Card.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useUser } from "@clerk/clerk-react";
-import { useAuth } from "@clerk/clerk-react";
+// import { useUser } from "@clerk/clerk-react";
+// import { useAuth } from "@clerk/clerk-react";
 import { Toaster } from "react-hot-toast";
-
+import useUserFetchStore from "../../stores/fetchUserStore"
 // import { axiosInstance } from "../../lib/axios";
 // import { useAuth } from "@clerk/clerk-react"
 // console.log(useAuth);
@@ -45,9 +45,11 @@ interface PriceCardProps {
 const PriceCard: React.FC<PriceCardProps> = ({ plan }) => {
   const { planId, planName, planPrice, planDuration, planFeatures } = plan;
   const navigate = useNavigate();
-  const { user } = useUser();
-  const { getToken } = useAuth();
-
+  // const { user } = useUser();
+  // const { getToken } = useAuth();
+  const token = localStorage.getItem("token");
+  const { currentUser } = useUserFetchStore();
+  const userId = currentUser?._id;
   const initPay = (orderId: string, sendingData: any) => {
     if (!window.Razorpay) {
       console.error("Razorpay SDK not loaded.");
@@ -63,8 +65,7 @@ const PriceCard: React.FC<PriceCardProps> = ({ plan }) => {
       order_id: orderId,
       handler: async function (response: RazorpayResponse) {
         console.log(response);
-
-        const token = await getToken(); // Ensure it's fresh
+        
         const { plan } = sendingData;
         if (!token) {
           toast.error("Authentication token is missing.");
@@ -90,16 +91,16 @@ const PriceCard: React.FC<PriceCardProps> = ({ plan }) => {
     const rzp = new window.Razorpay(options);
     rzp.open();
   };
-  const razorPayment = async (planId: number, user?: any) => {
-    console.log("Sending payment request with:", { planId, userId: user?.id });
+  const razorPayment = async (planId: number, userId: any) => {
+    console.log("Sending payment request with:", { planId, userId: userId });
     try {
-      if (!user || !user.id) {
+      if (!currentUser._id || !userId) {
         console.error("User is not authenticated.");
         toast.error("User is not authenticated.");
         return;
       }
 
-      const token = await getToken();
+      // const token = await getToken();
       if (!token) {
         toast.error("Authentication token is missing.");
         return;
@@ -107,7 +108,7 @@ const PriceCard: React.FC<PriceCardProps> = ({ plan }) => {
 
       const { data } = await axios.post(
         "http://localhost:5000/api/users/payment",
-        { planId, userId: user.id },
+        { planId, userId: userId },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -154,7 +155,8 @@ const PriceCard: React.FC<PriceCardProps> = ({ plan }) => {
 
         {/* Buy Plan Button */}
         <button
-          onClick={() => razorPayment(planId, user)}
+          onClick={() => razorPayment(planId, userId)}
+          disabled={!currentUser._id}
           className="bg-green-500 hover:bg-green-600 text-white font-medium px-6 py-2 rounded-lg mt-6"
         >
           Buy Plan
