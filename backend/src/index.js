@@ -38,7 +38,7 @@ initializeSocket(httpServer);
 
 app.use(
   cors({
-    origin: 'https://beat-buzz-flax.vercel.app/',
+    origin: 'https://beatbuzz-frontend.onrender.com',
     credentials: true,
   })
 );
