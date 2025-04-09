@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { error } from "console";
 
 const Signup = () => {
   const [formData, setFormData] = useState<{
@@ -10,7 +11,7 @@ const Signup = () => {
     fullname: string;
     email: string;
     password: string;
-    profilePic: File;
+    profilePic: File | null;
   }>({
     username: "",
     fullname: "",
@@ -84,22 +85,30 @@ const Signup = () => {
 
     if (!validateForm()) return;
     setLoading(true); // Show loading state
-
+    
     try {
       const response = await axios.post(
         "http://localhost:5000/api/users/send-otp",
         {
           email: formData.email,
+          username: formData.username,
         }
       );
-      toast.success("OTP sent to your email. Please check your inbox.", { icon: "📩" });
+      toast.success("OTP sent to your email. Please check your inbox.", {
+        icon: "📩",
+      });
+
       if (response.data.success) {
         setGeneratedOtp(response.data.otp);
         setUserEmail(formData.email);
         setIsOtpSent(true);
+        setLoading(false); // Hide loading state
+      }
+      if (!response.data.success) {
+        setLoading(false); // Hide loading state
       }
     } catch (error: any) {
-      toast.error("Failed to send OTP. Please try again.");
+      toast.error(error.response.data.message || "Failed to send OTP!");
     }
   };
 
@@ -112,10 +121,9 @@ const Signup = () => {
       formDataToSend.append("password", formData.password);
 
       if (formData.profilePic) {
-        console.log("Uploading File:", formData.profilePic); // Debug log
+        // console.log("Uploading File:", formData.profilePic); // Debug log
         formDataToSend.append("profilePic", formData.profilePic); // Append file
-      }
-      else{
+      } else {
         console.log("No File Selected");
       }
 
@@ -243,7 +251,7 @@ const Signup = () => {
               className="bg-green-400 text-white p-2 rounded-full mt-5"
               disabled={loading}
             >
-            {loading ? "Sending OTP..." : "Sign Up"}
+              {loading ? "Sending OTP..." : "Sign Up"}
             </button>
           </form>
         ) : (

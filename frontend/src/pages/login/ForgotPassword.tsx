@@ -34,7 +34,7 @@ const ForgotPassword = () => {
     setLoading(true); // Show loading state
 
     try {
-      const response = await axios.post(
+      await axios.post(
         "http://localhost:5000/api/users/forgot-password",
         { email }
       );

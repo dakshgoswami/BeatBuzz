@@ -81,11 +81,11 @@ export const getMessages = async (req, res, next) => {
 export const updateProfile = async (req, res) => {
   try {
     const { fullName, username, email, userId } = req.body;
-    console.log(req.body);
+    // console.log(req.body);
     let user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: "User not found" });
     let existingUser = await User.findOne({ $or: [{ username }, { email }] });
-    if (existingUser && existingUser._id.toString() !== userId) {
+    if (existingUser) {
       return res
         .status(400)
         .json({ success: false, message: "Username or Email already exists" });
@@ -101,7 +101,7 @@ export const updateProfile = async (req, res) => {
     // Process new profile image if uploaded
     if (req.files && req.files.image) {
       const file = req.files.image;
-      console.log("File received:", req.files);
+      // console.log("File received:", req.files);
       const filePath = path.join(uploadDir, file.name);
 
       await file.mv(filePath); // Move file to the uploads folder
@@ -243,7 +243,7 @@ export const signupUser = async (req, res, next) => {
   try {
     let profilePicUrl = "";
     console.log("Received Request Body:", req.body);
-    console.log("Received Request Files:", req.files);
+    // console.log("Received Request Files:", req.files);
     // 🔹 Handle Profile Picture Upload
     if (req.files && req.files.profilePic) {
       const file = req.files.profilePic;
@@ -289,9 +289,10 @@ export const signupUser = async (req, res, next) => {
       username,
       imageUrl: profilePicUrl, // Store the generated image URL
     });
-
+    console.log("New User Created:", newUser);
     res.status(201).json({ success: true, user: newUser });
   } catch (error) {
+    console.error("Error during signup:", error);
     next(error);
   }
 };
@@ -325,10 +326,10 @@ export const loginUser = async (req, res, next) => {
 };
 
 export const sendOtp = async (req, res) => {
-  const { email } = req.body;
-  console.log("Received Email:", email);
+  const { email, username } = req.body;
+  // console.log("Received Email:", email);
   const otp = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit OTP
-  console.log("Generated OTP:", otp);
+  // console.log("Generated OTP:", otp);
   otpStore[email] = otp; // Store OTP temporarily
 
   // Setup email transporter
@@ -350,8 +351,27 @@ export const sendOtp = async (req, res) => {
   };
 
   try {
+    if(!email || !username) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Email and username are required" });
+    }
+
+    const existingUser = await User.findOne({
+      $or: [{ email }, { username }],
+    });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message:
+          existingUser.email === email
+            ? "Email already exists"
+            : "Username already exists",
+      });
+    }
+
     await transporter.sendMail(mailOptions);
-    console.log("OTP Email Sent Successfully");
+    // console.log("OTP Email Sent Successfully");
     res.json({ success: true, otp });
 
     setTimeout(() => {

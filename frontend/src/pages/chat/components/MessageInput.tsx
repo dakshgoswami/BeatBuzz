@@ -11,10 +11,11 @@ import { io } from "socket.io-client";
 const MessageInput = () => {
   const [newMessage, setNewMessage] = useState("");
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const { selectedUser, sendMessage, sendFileMessage } = useChatStore();
+  const { selectedUser, sendMessage, sendFileMessage, typeMessage, socket } = useChatStore();
   const {currentUser} = useUserFetchStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const socket = io("http://localhost:5000");
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [typingUsers, setTypingUsers] = useState<string[]>([]);
   // console.log(user);
 
   useEffect(() => {
@@ -22,6 +23,44 @@ const MessageInput = () => {
       socket.disconnect();
     };
   }, []);
+
+// MessageInput.tsx (only updated parts)
+
+useEffect(() => {
+  if (!inputRef.current || !selectedUser) return;
+
+  const input = inputRef.current;
+  let typingTimeout: any;
+
+  const handleTyping = () => {
+    socket.emit("typing", {
+      userId: currentUser._id,
+      recieverId: selectedUser._id,
+    });
+    console.log("Typing event emitted to server");
+
+    if (typingTimeout) clearTimeout(typingTimeout);
+
+  typingTimeout = setTimeout(() => {
+    socket.emit("stopTyping", {
+      userId: currentUser._id,
+      recieverId: selectedUser._id,
+    });
+  }, 2000);
+  };
+  const handleStopTyping = () => {
+    socket.emit("stopTyping", {
+      userId: currentUser._id,
+      recieverId: selectedUser._id,
+    });
+  };
+
+  input.addEventListener("input", handleTyping);
+
+  return () => {
+    input.removeEventListener("input", handleTyping);
+  };
+}, [currentUser?._id, selectedUser]);
 
   // const username = user?.username || "";
 // const userId = localStorage.getItem("userId") || "";
@@ -82,6 +121,7 @@ const MessageInput = () => {
           onChange={(e) => setNewMessage(e.target.value)}
           className="bg-zinc-800 border-none"
           onKeyDown={(e) => e.key === "Enter" && handleSend()}
+          ref={inputRef}
         />
         <Button
           size="icon"

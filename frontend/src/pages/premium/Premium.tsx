@@ -1,6 +1,7 @@
 import PriceCard from "./Price-Card";
-
+import { useNavigate } from "react-router-dom";
 const Premium = () => {
+  const navigate = useNavigate();
   const plans = [
     {
       planId: 101,
@@ -48,6 +49,7 @@ const Premium = () => {
           <PriceCard key={plan.planId} plan={plan} />
         ))}
       </div>
+      <button className="bg-green-500 hover:bg-green-600 text-white font-medium px-6 py-2 rounded-lg mt-6" onClick={() => navigate("/")}>Back to Home</button>
     </div>
   );
 };

@@ -11,9 +11,11 @@ import { PlaybackControls } from "./components/PlaybackControls";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useUserFetchStore from "@/stores/fetchUserStore";
+import { useChatStore } from "@/stores/useChatStore";
 // import { useAuth } from "@clerk/clerk-react";
 const Mainlayout = () => {
   const { isPremium, showAd, setShowAd } = useUserFetchStore();
+  const { selectedUser } = useChatStore();
   // console.log("isPremium", isPremium);
   const [isMobile, setIsMobile] = useState(false);
   const navigate = useNavigate();
@@ -95,7 +97,9 @@ const Mainlayout = () => {
               defaultSize={16}
               minSize={isMobile ? 0 : 0}
               maxSize={20}
-              className="max-sm:max-w-[60px]"
+              className={`max-sm:max-w-[60px] ${
+                selectedUser ? "hidden" : "block"
+              } duration-700 transition-transform`}
             >
               <LeftSidebar />
             </ResizablePanel>

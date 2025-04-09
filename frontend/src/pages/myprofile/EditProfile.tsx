@@ -93,12 +93,12 @@ const EditProfile = () => {
         // ✅ Re-fetch updated user data
         fetchCurrentUser(); // Ensure latest data is available
 
-        setTimeout(() => navigate("/myprofile"), 1000);
+        setTimeout(() => navigate("/"), 1000);
         toast.success("Profile updated successfully!");
       } else {
         throw new Error(response.data.message || "Failed to update profile");
       }
-    } catch (error) {
+    } catch (error: any) {
       toast.error(error.response.data.message || "Failed to update profile");
     }
   };
@@ -118,48 +118,62 @@ const EditProfile = () => {
               {formData.username?.charAt(0).toUpperCase() || "U"}
             </AvatarFallback>
           </Avatar>
+          <form
+            onSubmit={handleSubmit}
+            className="w-full flex flex-col gap-2 mt-4 max-sm:w-[90%]"
+          >
           <input
             type="file"
             accept="image/*"
             onChange={handleImageChange}
-            className="text-white"
+            className="text-white max-sm:text-xs"
           />
-          <form
-            onSubmit={handleSubmit}
-            className="w-full flex flex-col gap-3 mt-4"
-          >
-            <input
+           <div>
+           <label htmlFor="fullName" className="text-white max-sm:text-xs">Full Name</label>
+           <input
               type="text"
               name="fullName"
               value={formData.fullName}
               onChange={handleChange}
               placeholder="Full Name"
-              className="px-4 py-2 rounded bg-zinc-800 text-white w-full outline-none border border-green-500"
+              id="fullName"
+              className="px-4 py-2 max-sm:px-2 max-sm:py-1 max-sm:text-sm rounded bg-zinc-800 text-white w-full outline-none border border-green-500"
             />
+           </div>
+            
+            <div>
+            <label htmlFor="username" className="text-white max-sm:text-xs">Username</label>
             <input
               type="text"
               name="username"
               value={formData.username.toLowerCase().trim()}
               onChange={handleChange}
               placeholder="Username"
-              className="px-4 py-2 rounded bg-zinc-800 text-white w-full outline-none border border-green-500"
+              id="username"
+              className="px-4 py-2 max-sm:px-2 max-sm:py-1 max-sm:text-sm rounded bg-zinc-800 text-white w-full outline-none border border-green-500"
             />
-            <input
+            </div>
+           
+           <div>
+           <label htmlFor="email" className="text-white max-sm:text-xs">Email</label>
+           <input
               type="email"
               name="email"
               value={formData.email.toLowerCase()}
               onChange={handleChange}
               placeholder="Email"
-              className="px-4 py-2 rounded bg-zinc-800 text-white w-full outline-none border border-green-500"
+              id="email"
+              className="px-4 py-2 max-sm:px-2 max-sm:py-1 max-sm:text-sm rounded bg-zinc-800 text-white w-full outline-none border border-green-500"
             />
-            <div className="flex gap-3">
+           </div>
+            <div className="flex gap-3 max-sm:flex-col max-sm:gap-2 mt-4 w-full">
               <Button type="submit" className="w-full">
                 Save Changes
               </Button>
               <Button
                 variant="outline"
                 className="w-full"
-                onClick={() => navigate("/myprofile")}
+                onClick={() => {return navigate("/myprofile")}}
               >
                 Cancel
               </Button>

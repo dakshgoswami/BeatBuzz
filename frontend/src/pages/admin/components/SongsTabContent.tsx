@@ -7,8 +7,8 @@ const SongsTabContent = () => {
 	return (
 		<Card>
 			<CardHeader>
-				<div className='flex items-center justify-between'>
-					<div>
+				<div className='flex items-center justify-between max-sm:flex-col max-sm:gap-3'>
+					<div className="max-sm:text-center">
 						<CardTitle className='flex items-center gap-2'>
 							<Music className='size-5 text-emerald-500' />
 							Songs Library

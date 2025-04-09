@@ -2,7 +2,7 @@ import { axiosInstance } from "@/lib/axios";
 import { create } from "zustand";
 import { Album, Song, Stats } from "@/types";
 import toast from "react-hot-toast";
-
+import { Navigate, useNavigate } from "react-router-dom";
 interface MusicStore {
   albums: Album[];
   songs: Song[];
@@ -160,6 +160,10 @@ export const useMusicStore = create<MusicStore>((set) => ({
 
   deleteSong: async (id) => {
     set({ isLoading: true, error: null });
+    // const navigate = useNavigate();
+    // alert("Are you sure you want to delete this song?");
+    // console.log(alert());
+    // if (!alert) return;
     try {
       await axiosInstance.delete(`/admin/songs/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -172,6 +176,7 @@ export const useMusicStore = create<MusicStore>((set) => ({
     } catch (error: any) {
       // console.log("Error in deleteSong", error);
       toast.error("Error deleting song");
+      // navigate("/admin");
     } finally {
       set({ isLoading: false });
     }

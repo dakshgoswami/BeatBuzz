@@ -46,9 +46,23 @@ const ChatPage = () => {
 
   useEffect(() => {
     if (!socket) return; // Ensure socket exists before listening
-  
+
     socket.on("message_notification", ({ message, username }) => {
-      toast.info(`📩 New message from ${username}: ${message || "📎 Sent a file"}`, {
+      toast.info(
+        `📩 New message from ${username}: ${message || "📎 Sent a file"}`,
+        {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        }
+      );
+    });
+
+    socket.on("typing", ({ username }) => {
+      toast.info(`${username} is typing...`, {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -57,18 +71,17 @@ const ChatPage = () => {
         draggable: true,
       });
     });
-  
+
     return () => {
       socket.off("message_notification");
     };
   }, [socket]); // ✅ Include socket in dependencies
-  
 
   return (
     <main className="h-full rounded-lg bg-gradient-to-b from-zinc-800 to-zinc-900 overflow-hidden">
       <Topbar />
       <ToastContainer />
-      <div className="grid lg:grid-cols-[300px_1fr] grid-cols-[80px_1fr] h-[calc(100vh-180px)]">
+      <div className={`grid lg:grid-cols-[300px_1fr] ${selectedUser ? "lg:grid-cols-[50px_1fr]" : "lg:grid-cols-[300px_1fr]"} grid-cols-[0px_1fr] h-[calc(100vh-180px)] ${selectedUser ? "grid-cols-[0px_1fr]" : "grid-cols-[80px_1fr]"}`}>
         <UsersList />
         <div className="flex flex-col h-full">
           {selectedUser ? (
@@ -76,24 +89,20 @@ const ChatPage = () => {
               <ChatHeader />
               <ScrollArea className="h-[calc(100vh-340px)] overflow-y-auto">
                 <div className="p-4 space-y-4">
-                  {messages?.map(
-                    (message, index) => (
-                      // console.log(message),
-                      (
-                        <div
-                          key={message._id}
-                          ref={
-                            index === messages.length - 1
-                              ? lastMessageRef
-                              : null
-                          }
-                          className={`flex items-start gap-3 ${
-                            message.senderId === currentUser._id
-                              ? "flex-row-reverse"
-                              : ""
-                          }`}
-                        >
-                          {/* <Avatar className="size-8">
+                  {messages?.map((message, index) => (
+                    // console.log(message),
+                    <div
+                      key={message._id}
+                      ref={
+                        index === messages.length - 1 ? lastMessageRef : null
+                      }
+                      className={`flex items-start gap-3 ${
+                        message.senderId === currentUser._id
+                          ? "flex-row-reverse"
+                          : ""
+                      }`}
+                    >
+                      {/* <Avatar className="size-8">
                         <AvatarImage
                           src={
                             message.senderId === user?.id
@@ -103,53 +112,48 @@ const ChatPage = () => {
                         />
                       </Avatar> */}
 
-                          <div
-                            className={`rounded-lg p-3 max-w-[70%] ${
-                              message.senderId === currentUser._id
-                                ? "bg-green-500"
-                                : "bg-zinc-800"
-                            }`}
-                          >
-                            {message.content && !message.fileUrl && (
-                              <p className="text-sm">{message.content}</p>
+                      <div
+                        className={`rounded-lg p-3 max-w-[70%] ${
+                          message.senderId === currentUser._id
+                            ? "bg-green-500"
+                            : "bg-zinc-800"
+                        }`}
+                      >
+                        {message.content && !message.fileUrl && (
+                          <p className="text-sm">{message.content}</p>
+                        )}
+                        {message.fileUrl && (
+                          <div className="mt-2">
+                            {message.fileType?.startsWith("image") ? (
+                              <img
+                                src={message.fileUrl}
+                                className="max-w-xs max-h-[350px] rounded-lg w-full h-full object-cover"
+                              />
+                            ) : message.fileType?.startsWith("video") ? (
+                              <video controls className="max-w-xs rounded-lg">
+                                <source
+                                  src={message.fileUrl}
+                                  type={message.fileType}
+                                />
+                              </video>
+                            ) : (
+                              <a
+                                href={message.fileUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-400 underline"
+                              >
+                                Download file
+                              </a>
                             )}
-                            {message.fileUrl && (
-                              <div className="mt-2">
-                                {message.fileType?.startsWith("image") ? (
-                                  <img
-                                    src={message.fileUrl}
-                                    className="max-w-xs max-h-[350px] rounded-lg w-full h-full object-cover"
-                                  />
-                                ) : message.fileType?.startsWith("video") ? (
-                                  <video
-                                    controls
-                                    className="max-w-xs rounded-lg"
-                                  >
-                                    <source
-                                      src={message.fileUrl}
-                                      type={message.fileType}
-                                    />
-                                  </video>
-                                ) : (
-                                  <a
-                                    href={message.fileUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-blue-400 underline"
-                                  >
-                                    Download file
-                                  </a>
-                                )}
-                              </div>
-                            )}
-                            <span className="text-xs text-zinc-300 mt-1 block">
-                              {formatTime(message.createdAt)}
-                            </span>
                           </div>
-                        </div>
-                      )
-                    )
-                  )}
+                        )}
+                        <span className="text-xs text-zinc-300 mt-1 block">
+                          {formatTime(message.createdAt)}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </ScrollArea>
               <MessageInput />
@@ -173,10 +177,12 @@ const NoConversationPlaceholder = () => (
       className="size-12 animate-bounce rounded-full"
     />
     <div className="text-center">
-      <h3 className="text-zinc-300 text-lg font-medium mb-1">
+      <h3 className="text-zinc-300 text-lg font-medium mb-1 max-sm:text-xs">
         No conversation selected
       </h3>
-      <p className="text-zinc-500 text-sm">Choose a friend to start chatting</p>
+      <p className="text-zinc-500 text-sm max-sm:text-xs">
+        Choose a friend to start chatting
+      </p>
     </div>
   </div>
 );

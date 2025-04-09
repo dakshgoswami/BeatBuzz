@@ -39,7 +39,7 @@ const ResetPassword = () => {
     setError("");
     if (!validateForm()) return; // Stop if validation fails
     try {
-      const response = await axios.post(
+         await axios.post(
         `http://localhost:5000/api/users/reset-password/${token}`,
         { password }
       );

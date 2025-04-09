@@ -97,7 +97,7 @@ const Topbar = () => {
           <SignInOAuthButton />
         </SignedOut> */}
 
-        <p className="text-[1rem] font-thin">
+        <p className="text-[1rem] font-thin max-sm:hidden">
           Hello, {currentUser?._id ? currentUser.username : "Buddy"}
         </p>
         {token ? (

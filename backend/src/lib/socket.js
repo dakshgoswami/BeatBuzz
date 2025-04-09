@@ -34,26 +34,25 @@ export const initializeSocket = (server) => {
         const token = socket.handshake.auth?.token;
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const userId = decoded.userId;
-  
+
         // ✅ Ensure multiple sockets per user
         if (!userSockets.has(userId)) {
           userSockets.set(userId, new Set());
         }
-  
+
         // ✅ Remove old socket IDs before adding a new one (to prevent memory leaks)
         userSockets.get(userId).delete(socket.id);
         userSockets.get(userId).add(socket.id);
-  
+
         // console.log("🟢 User connected:", userId, "Sockets:", [...userSockets.get(userId)]);
         io.emit("users_online", Array.from(userSockets.keys()));
-  
       } catch (error) {
         console.error("❌ Authentication Error:", error.message);
         socket.disconnect();
       }
     });
 
-    socket.on("update_activity", ({ activity }) => {
+    socket.on("update_activity", ({ activity, currentSongId }) => {
       try {
         const token = socket.handshake.auth?.token;
         let decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -66,7 +65,7 @@ export const initializeSocket = (server) => {
         }
 
         // console.log("Activity updated", userId, activity);
-        io.emit("activity_updated", { userId, activity });
+        io.emit("activity_updated", { userId, activity, currentSongId });
       } catch (error) {
         console.error("❌ Socket Error:", error.message);
         socket.disconnect();
@@ -92,7 +91,7 @@ export const initializeSocket = (server) => {
           fileUrl,
           fileType,
         });
-        
+
         io.to(socket.id).emit("receive_message", message);
 
         const receiverSocketIds = userSockets.get(recieverId) || new Set();
@@ -103,61 +102,30 @@ export const initializeSocket = (server) => {
             username: username || "Buddy",
           });
         });
-        
+
         // socket.emit("message_notification", {
         //   message: content || "📎 Sent a file",
         //   username: username || "Buddy",
         // });
-        
       } catch (error) {
         console.error("❌ Message error:", error);
         socket.emit("message_error", error.message);
       }
     });
-    
-    // // Handle file upload separately
-    // socket.on("upload_file", async (data, callback) => {
-    //   try {
-    //     console.log("File upload event triggered:", data);
 
-    //     const { senderId, recieverId, file, fileName, fileType, username } =
-    //       data;
-    //     if (!file || !fileName) {
-    //       throw new Error("No file data received.");
-    //     }
-
-    //     const filePath = `uploads/${fileName}`;
-    //     // const buffer = Buffer.from(file, "base64");
-
-    //     require("fs").writeFileSync(filePath, file);
-
-    //     console.log("File successfully saved at:", filePath);
-
-    //     const message = await Message.create({
-    //       senderId,
-    //       recieverId,
-    //       fileUrl: `/${filePath}`,
-    //       fileType,
-    //       username,
-    //     });
-
-    //     const receiverSocketId = userSockets.get(recieverId);
-    //     if (receiverSocketId) {
-    //       io.to(receiverSocketId).emit("receive_message", message);
-    //     }
-
-    //     socket.emit("file_uploaded", message);
-    //     callback({ status: "success", fileUrl: `/${filePath}` });
-    //   } catch (error) {
-    //     console.error("File upload error:", error);
-    //     callback({ status: "error", message: error.message });
-    //   }
-    // });
-
-    socket.on("typing", (data) => {
-      const receiverSocketId = userSockets.get(data.recieverId);
+    // Server.js
+    socket.on("typing", ({ userId, recieverId }) => {
+      const receiverSocketId = userSockets.get(recieverId);
+      // console.log(`User ${userId} is typing... to ${recieverId}`);
       if (receiverSocketId) {
-        io.to(receiverSocketId).emit("typing", data);
+        io.to(receiverSocketId).emit("userTyping", { userId });
+      }
+    });
+
+    socket.on("stopTyping", ({ userId, recieverId }) => {
+      const receiverSocketId = userSockets.get(recieverId);
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("userStoppedTyping", { userId });
       }
     });
 

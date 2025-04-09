@@ -15,7 +15,7 @@ import { useMusicStore } from "@/stores/useMusicStore";
 import { Plus, Upload } from "lucide-react";
 import { useRef, useState } from "react";
 import toast from "react-hot-toast";
-
+// import { useNavigate } from "react-router-dom";
 interface NewSong {
 	title: string;
 	artist: string;
@@ -52,7 +52,7 @@ const AddSongDialog = () => {
 			}
 
 			const formData = new FormData();
-			console.log(newSong);
+			// console.log(newSong);
 			formData.append("title", newSong.title);
 			formData.append("artist", newSong.artist);
 			formData.append("duration", newSong.duration);
@@ -62,6 +62,13 @@ const AddSongDialog = () => {
 
 			formData.append("audioFile", files.audio);
 			formData.append("imageFile", files.image);
+
+			if(!formData.get("audioFile") || !formData.get("imageFile")) {
+				return toast.error("Please upload both audio and image files");
+			}
+			if (!formData.get("title") || !formData.get("artist")) {
+				return toast.error("Please fill in all required fields");
+			}
 
 			await axiosInstance.post("/admin/songs", formData, {
 				headers: {
@@ -91,13 +98,13 @@ const AddSongDialog = () => {
 	return (
 		<Dialog open={songDialogOpen} onOpenChange={setSongDialogOpen}>
 			<DialogTrigger asChild>
-				<Button className='bg-emerald-500 hover:bg-emerald-600 text-black'>
+				<Button className='bg-emerald-500 hover:bg-emerald-600 text-black max-sm:w-full'>
 					<Plus className='mr-2 h-4 w-4' />
 					Add Song
 				</Button>
 			</DialogTrigger>
 
-			<DialogContent className='bg-zinc-900 border-zinc-700 max-h-[80vh] overflow-auto'>
+			<DialogContent className='bg-zinc-900 border-zinc-700 max-h-[80vh] overflow-auto max-sm:w-[95%]'>
 				<DialogHeader>
 					<DialogTitle>Add New Song</DialogTitle>
 					<DialogDescription>Add a new song to your music library</DialogDescription>
@@ -110,6 +117,7 @@ const AddSongDialog = () => {
 						ref={audioInputRef}
 						hidden
 						onChange={(e) => setFiles((prev) => ({ ...prev, audio: e.target.files![0] }))}
+						required
 					/>
 
 					<input
@@ -118,6 +126,7 @@ const AddSongDialog = () => {
 						className='hidden'
 						accept='image/*'
 						onChange={(e) => setFiles((prev) => ({ ...prev, image: e.target.files![0] }))}
+						required
 					/>
 
 					{/* image upload area */}
@@ -147,7 +156,7 @@ const AddSongDialog = () => {
 
 					{/* Audio upload */}
 					<div className='space-y-2'>
-						<label className='text-sm font-medium'>Audio File</label>
+						<label className='text-sm font-medium'><span className="text-green-500">*</span> Audio File</label>
 						<div className='flex items-center gap-2'>
 							<Button variant='outline' onClick={() => audioInputRef.current?.click()} className='w-full'>
 								{files.audio ? files.audio.name.slice(0, 20) : "Choose Audio File"}
@@ -157,24 +166,26 @@ const AddSongDialog = () => {
 
 					{/* other fields */}
 					<div className='space-y-2'>
-						<label className='text-sm font-medium'>Title</label>
+						<label className='text-sm font-medium'><span className="text-green-500">*</span> Title</label>
 						<Input
 							value={newSong.title}
 							onChange={(e) => setNewSong({ ...newSong, title: e.target.value })}
 							className='bg-zinc-800 border-zinc-700'
+							required
 						/>
 					</div>
 
 					<div className='space-y-2'>
-						<label className='text-sm font-medium'>Artist</label>
+						<label className='text-sm font-medium'><span className="text-green-500">*</span> Artist</label>
 						<Input
 							value={newSong.artist}
 							onChange={(e) => setNewSong({ ...newSong, artist: e.target.value })}
 							className='bg-zinc-800 border-zinc-700'
+							required
 						/>
 					</div>
 
-					<div className='space-y-2'>
+					<div className='space-y-2 max-sm:hidden'>
 						<label className='text-sm font-medium'>Duration (seconds)</label>
 						<Input
 							type='number'
@@ -206,12 +217,12 @@ const AddSongDialog = () => {
 					</div>
 				</div>
 
-				<DialogFooter>
+				<DialogFooter className="flex flex-col max-sm:gap-2">
+					<Button onClick={handleSubmit} disabled={isLoading || !files.audio || !files.image || !newSong.title || !newSong.artist}>
+						{isLoading ? "Uploading..." : "Upload Song"}
+					</Button>
 					<Button variant='outline' onClick={() => setSongDialogOpen(false)} disabled={isLoading}>
 						Cancel
-					</Button>
-					<Button onClick={handleSubmit} disabled={isLoading}>
-						{isLoading ? "Uploading..." : "Add Song"}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

@@ -5,7 +5,7 @@ import { User } from "@/types";
 import { io } from "socket.io-client";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { useMusicState } from "./useMusicStore";
+// import { useMusicState } from "./useMusicStore";
 // import useUserFetchStore from "./fetchUserStore";
 
 interface ChatStore {
@@ -39,6 +39,10 @@ interface ChatStore {
   ) => void;
   fetchMessages: (userId: string) => Promise<void>;
   setSelectedUser: (user: User | null) => void;
+  typeMessage: (message: string) => void;
+  typingUsers: Set<string>;
+  removeTypingUser: (userId: string) => void;
+  addTypingUser: (userId: string) => void;
 }
 
 const baseURL =
@@ -51,6 +55,7 @@ const socket = io(baseURL, {
     token: localStorage.getItem("token"),
   },
 });
+
 
 // const { currentUser } = useUserFetchStore();
 export const useChatStore = create<ChatStore>((set, get) => ({
@@ -68,6 +73,20 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   selectedUser: null,
   user: localStorage.getItem("userId"),
   setSelectedUser: (user) => set({ selectedUser: user }),
+  
+  typingUsers: new Set(),
+
+  // Add typing user
+  addTypingUser: (userId) =>
+    set((state) => ({ typingUsers: new Set(state.typingUsers).add(userId) })),
+
+  removeTypingUser: (userId) =>
+    set((state) => {
+      const updated = new Set(state.typingUsers);
+      updated.delete(userId);
+      return { typingUsers: updated };
+    }),
+    
   fetchUsers: async () => {
     set({ isLoading: true, error: null });
     try {
@@ -258,4 +277,10 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       set({ isLoading: false });
     }
   },
+
+  typeMessage: (message: string) => {
+    const socket = get().socket;
+    if (!socket) return;
+    socket.emit("typing", message);
+  }
 }));
