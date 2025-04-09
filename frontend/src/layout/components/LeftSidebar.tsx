@@ -104,7 +104,7 @@ const LeftSidebar = () => {
             </span>
           </div>
         </div>
-        <ScrollArea className="h-[calc(100vh-500px)] max-sm:h-[calc(100vh-420px)] md:h-[calc(100vh-470px)] lg:h-[calc(100vh-450px)]">
+        <ScrollArea className="h-[calc(100vh-500px)] max-sm:h-[calc(100vh-420px)] md:h-[calc(100vh-470px)] lg:h-[calc(100vh-480px)]">
           <div className="space-y-2 max-sm:space-y-4">
             {isLoading ? (
               <PlaylistSkeleton />
