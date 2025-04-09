@@ -31,7 +31,7 @@ app.use(
     },
   })
 );
-app.use("/uploads", express.static("uploads"));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const httpServer = createServer(app);
 initializeSocket(httpServer);
