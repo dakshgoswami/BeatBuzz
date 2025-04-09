@@ -20,7 +20,7 @@ const upload = multer({ storage });
 export const initializeSocket = (server) => {
   const io = new Server(server, {
     cors: {
-      origin: "http://localhost:3001",
+      origin: "https://beat-buzz-flax.vercel.app/",
       credentials: true,
     },
   });
