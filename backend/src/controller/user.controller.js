@@ -114,7 +114,7 @@ export const updateProfile = async (req, res) => {
         }
       }
 
-      imageUrl = `http://localhost:5000/uploads/${file.name}`; // URL for frontend
+      imageUrl = `https://beatbuzz.onrender.com/uploads/${file.name}`; // URL for frontend
     }
 
     // Update user in the database
@@ -260,7 +260,7 @@ export const signupUser = async (req, res, next) => {
       await file.mv(filePath); // Move file to the uploads folder
 
       // Set image URL for frontend retrieval
-      profilePicUrl = `http://localhost:5000/uploads/${file.name}`;
+      profilePicUrl = `https://beatbuzz.onrender.com/uploads/${file.name}`;
     }
 
     const { email, password, fullName, username } = req.body;
@@ -405,7 +405,7 @@ export const forgotPassword = async (req, res) => {
       },
     });
 
-    const resetUrl = `http://localhost:3001/reset-password/${resetToken}`;
+    const resetUrl = `http://:3001/reset-password/${resetToken}`;
     const mailOptions = {
       from: process.env.ADMIN_EMAIL,
       to: user.email,

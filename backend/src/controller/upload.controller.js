@@ -31,7 +31,7 @@ const userSockets = new Map(); // { userId: socketId}
             const newMessage = {
                 senderId: req.body.senderId,
                 recieverId: req.body.recieverId,
-                fileUrl: `http://localhost:5000/uploads/${file.name}`,
+                fileUrl: `https://beatbuzz.onrender.com/uploads/${file.name}`,
                 fileType: file.mimetype,
                 content: req.body.content,
             };
