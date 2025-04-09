@@ -11,7 +11,7 @@ import { toast, ToastContainer } from "react-toastify";
 import useUserFetchStore from "@/stores/fetchUserStore";
 import "react-toastify/dist/ReactToastify.css";
 
-const socket = io("http://localhost:5000");
+const socket = io("https://beatbuzz.onrender.com");
 
 const formatTime = (date: string) => {
   return new Date(date).toLocaleTimeString("en-US", {

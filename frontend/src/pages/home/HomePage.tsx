@@ -9,7 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import SectionGrid from "./components/SectionGrid";
 import { usePlayerStore } from "@/stores/usePlayerStore";
 
-const socket = io("http://localhost:5000"); // Initialize socket outside component
+const socket = io("https://beatbuzz.onrender.com"); // Initialize socket outside component
 
 const HomePage = () => {
   const { initializeQueue } = usePlayerStore();
