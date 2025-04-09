@@ -4,7 +4,7 @@ import { io } from "socket.io-client";
 import multer from "multer";
 import path from "path";
 import jwt from "jsonwebtoken";
-export const socket = io("http://localhost:5000");
+export const socket = io("https://beatbuzz.onrender.com");
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
