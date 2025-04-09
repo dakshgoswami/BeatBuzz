@@ -84,12 +84,19 @@ export const updateProfile = async (req, res) => {
     // console.log(req.body);
     let user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: "User not found" });
-    let existingUser = await User.findOne({ $or: [{ username }, { email }] });
-    if (existingUser) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Username or Email already exists" });
+    if (user.username !== username || user.email !== email) {
+      let existingUser = await User.findOne({
+        $or: [{ username }, { email }],
+        _id: { $ne: userId },
+      });
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          message: "Username or Email already exists",
+        });
+      }
     }
+    
     let imageUrl = user.imageUrl; // Keep existing image if not updated
 
     // Ensure the uploads directory exists
@@ -351,7 +358,7 @@ export const sendOtp = async (req, res) => {
   };
 
   try {
-    if(!email || !username) {
+    if (!email || !username) {
       return res
         .status(400)
         .json({ success: false, message: "Email and username are required" });
