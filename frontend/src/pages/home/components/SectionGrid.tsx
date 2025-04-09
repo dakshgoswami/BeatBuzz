@@ -10,10 +10,10 @@ type SectionGridProps = {
   songs: Song[];
   isLoading: boolean;
 };
-const SectionGrid = ({ songs, title, isLoading }: SectionGridProps) => {
+const SectionGrid = ({ songs, title }: SectionGridProps) => {
   // if (isLoading) return <SectionGridSkeleton />;
   const { currentUser } = useUserFetchStore();
-  const handleDownload = ({ fileUrl, fileName }) => {
+  const handleDownload = ({ fileUrl, fileName }: { fileUrl: string; fileName?: string }) => {
     const link = document.createElement("a");
     link.href = fileUrl;
     link.download = fileName || "song.mp3";

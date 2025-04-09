@@ -1,14 +1,14 @@
 import PlaylistSkeleton from "@/components/skeletons/PlaylistSkeleton";
-import { buttonVariants } from "@/components/ui/button";
+// import { buttonVariants } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn } from "@/lib/utils";
+// import { cn } from "@/lib/utils";
 // import { SignedIn } from "@clerk/clerk-react";
 import { HomeIcon, Library, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useMusicStore } from "@/stores/useMusicStore";
 import { useEffect } from "react";
 import { FaRegUser } from "react-icons/fa";
-import { CgMenuGridO } from "react-icons/cg";
+// import { CgMenuGridO } from "react-icons/cg";
 import { LayoutDashboardIcon } from "lucide-react";
 import { useAuthStore } from "@/stores/useAuthStore.ts";
 import { IoDiamondOutline } from "react-icons/io5";

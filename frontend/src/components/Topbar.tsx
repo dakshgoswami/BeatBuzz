@@ -1,10 +1,10 @@
-import { LayoutDashboardIcon } from "lucide-react";
+// import { LayoutDashboardIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 // import SignInOAuthButton from "./SignInOAuthButton.tsx";
 import { useAuthStore } from "@/stores/useAuthStore.ts";
-import { cn } from "@/lib/utils.ts";
-import { buttonVariants } from "./ui/button.tsx";
-import { IoDiamondOutline } from "react-icons/io5";
+// import { cn } from "@/lib/utils.ts";
+// import { buttonVariants } from "./ui/button.tsx";
+// import { IoDiamondOutline } from "react-icons/io5";
 import { useNavigate } from "react-router";
 import useUserFetchStore from "@/stores/fetchUserStore";
 // import "./Topbar.css";
@@ -12,15 +12,15 @@ import { useEffect } from "react";
 import { isTokenExpired } from "@/lib/utils"; // Update the path to the correct location
 
 const Topbar = () => {
-  const isAdmin = useAuthStore((state) => state.isAdmin);
+  // const isAdmin = useAuthStore((state) => state.isAdmin);
   const checkAdminStatus = useAuthStore((state) => state.checkAdminStatus); // Get function from store
-  const { isPremium, fetchCurrentUser, currentUser, setCurrentUser } =
+  const { fetchCurrentUser, currentUser, setCurrentUser } =
     useUserFetchStore();
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
-  const handlePremiumClick = () => {
-    navigate("/premium");
-  };
+  // const handlePremiumClick = () => {
+  //   navigate("/premium");
+  // };
   // console.log("Current User:", currentUser);
   useEffect(() => {
     if (token) {

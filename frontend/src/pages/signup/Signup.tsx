@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { error } from "console";
+// import { error } from "console";
 
 const Signup = () => {
   const [formData, setFormData] = useState<{

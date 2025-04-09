@@ -12,7 +12,7 @@ const FeaturedSection = () => {
 
   if (error) return <p className="text-red-500 mb-4 text-lg">{error}</p>;
 
-  const handleDownload = ({ fileUrl, fileName }) => {
+  const handleDownload = ({ fileUrl, fileName }: { fileUrl: string; fileName?: string }) => {
     const link = document.createElement("a");
     link.href = fileUrl;
     link.download = fileName || "song.mp3";

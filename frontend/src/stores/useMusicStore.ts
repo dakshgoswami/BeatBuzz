@@ -2,7 +2,7 @@ import { axiosInstance } from "@/lib/axios";
 import { create } from "zustand";
 import { Album, Song, Stats } from "@/types";
 import toast from "react-hot-toast";
-import { Navigate, useNavigate } from "react-router-dom";
+// import { Navigate, useNavigate } from "react-router-dom";
 interface MusicStore {
   albums: Album[];
   songs: Song[];

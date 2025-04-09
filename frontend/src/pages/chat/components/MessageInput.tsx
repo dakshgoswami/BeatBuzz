@@ -6,16 +6,16 @@ import  useUserFetchStore from "@/stores/fetchUserStore";
 import { Send } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { GoPaperclip } from "react-icons/go";
-import { io } from "socket.io-client";
+// import { io } from "socket.io-client";
 
 const MessageInput = () => {
   const [newMessage, setNewMessage] = useState("");
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const { selectedUser, sendMessage, sendFileMessage, typeMessage, socket } = useChatStore();
+  const { selectedUser, sendMessage, sendFileMessage, socket } = useChatStore();
   const {currentUser} = useUserFetchStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const [typingUsers, setTypingUsers] = useState<string[]>([]);
+  // const [typingUsers, setTypingUsers] = useState<string[]>([]);
   // console.log(user);
 
   useEffect(() => {
@@ -48,12 +48,12 @@ useEffect(() => {
     });
   }, 2000);
   };
-  const handleStopTyping = () => {
-    socket.emit("stopTyping", {
-      userId: currentUser._id,
-      recieverId: selectedUser._id,
-    });
-  };
+  // const handleStopTyping = () => {
+  //   socket.emit("stopTyping", {
+  //     userId: currentUser._id,
+  //     recieverId: selectedUser._id,
+  //   });
+  // };
 
   input.addEventListener("input", handleTyping);
 

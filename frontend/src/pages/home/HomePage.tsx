@@ -42,7 +42,7 @@ const HomePage = () => {
 
   useEffect(() => {
     // Handle incoming socket message
-    const handleMessageNotification = ({ message, username }) => {
+    const handleMessageNotification = ({ message, username }: { message: string; username: string }) => {
       toast.info(
         `📩 New message from ${username}: ${message || "📎 Sent a file"}`,
         {
