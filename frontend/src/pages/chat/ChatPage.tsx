@@ -11,8 +11,10 @@ import { toast, ToastContainer } from "react-toastify";
 import useUserFetchStore from "@/stores/fetchUserStore";
 import "react-toastify/dist/ReactToastify.css";
 
-const socket = io("https://beatbuzz.onrender.com");
-
+const socket = io(import.meta.env.VITE_BACKEND_URL, {
+  withCredentials: true,
+  transports: ['websocket'],
+});
 const formatTime = (date: string) => {
   return new Date(date).toLocaleTimeString("en-US", {
     hour: "2-digit",

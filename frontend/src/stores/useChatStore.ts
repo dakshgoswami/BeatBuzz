@@ -45,7 +45,7 @@ interface ChatStore {
 }
 
 const baseURL =
-  import.meta.env.MODE === "development" ? "https://beatbuzz.onrender.com" : "/";
+  import.meta.env.MODE === "development" ? import.meta.env.VITE_BACKEND_URL : import.meta.env.VITE_BACKEND_URL;
 // console.log(localStorage.getItem("token"));
 const socket = io(baseURL, {
   autoConnect: false,
