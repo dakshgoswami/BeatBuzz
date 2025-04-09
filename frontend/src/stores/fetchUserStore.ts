@@ -21,7 +21,7 @@ const useUserFetchStore = create<UserStore>((set) => ({
     if (!token) return;
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/users/allusers",
+        `${process.env.VITE_BACKEND_URL}/api/users/allusers`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -48,7 +48,7 @@ const useUserFetchStore = create<UserStore>((set) => ({
 
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/users/current",
+        `${process.env.VITE_BACKEND_URL}/api/users/current`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

@@ -40,7 +40,7 @@ const ResetPassword = () => {
     if (!validateForm()) return; // Stop if validation fails
     try {
          await axios.post(
-        `http://localhost:5000/api/users/reset-password/${token}`,
+        `${process.env.VITE_BACKEND_URL}/api/users/reset-password/${token}`,
         { password }
       );
       toast.success("Password reset successfully!", { icon: "✅" });

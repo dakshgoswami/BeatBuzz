@@ -79,7 +79,7 @@ const EditProfile = () => {
       formDataToSend.append("userId", currentUser._id);
       
       const response = await axios.post(
-        "http://localhost:5000/api/users/update-profile",
+        `${process.env.VITE_BACKEND_URL}/api/users/update-profile`,
         formDataToSend,
         {
           headers: {

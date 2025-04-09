@@ -91,7 +91,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("http://localhost:5000/api/users", {
+      const response = await axios.get(`${process.env.VITE_BACKEND_URL}/api/users`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

@@ -88,7 +88,7 @@ const Signup = () => {
     
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/users/send-otp",
+        `${process.env.VITE_BACKEND_URL}/api/users/send-otp`,
         {
           email: formData.email,
           username: formData.username,
@@ -129,7 +129,7 @@ const Signup = () => {
 
       try {
         const response = await axios.post(
-          "http://localhost:5000/api/users/signup",
+         `${process.env.VITE_BACKEND_URL}/api/users/signup`,
           formDataToSend,
           {
             headers: { "Content-Type": "multipart/form-data" }, // Important for file upload

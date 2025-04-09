@@ -44,7 +44,7 @@ const Login = () => {
 
     try {
       const { data } = await axios.post(
-        "http://localhost:5000/api/users/login",
+        `${process.env.VITE_BACKEND_URL}/api/users/login`,
         formData
       );
       // console.log(data);

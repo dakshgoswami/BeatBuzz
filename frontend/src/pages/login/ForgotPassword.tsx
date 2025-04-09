@@ -35,7 +35,7 @@ const ForgotPassword = () => {
 
     try {
       await axios.post(
-        "http://localhost:5000/api/users/forgot-password",
+        `${process.env.VITE_BACKEND_URL}/api/users/forgot-password`,
         { email }
       );
       toast.success("Check your email for the reset link!", { icon: "📩" });

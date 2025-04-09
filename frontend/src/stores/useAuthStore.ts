@@ -21,7 +21,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
       const token = localStorage.getItem("token");
       // console.log(token);
       const response = await axios.get(
-        "http://localhost:5000/api/admin/check",
+        `${process.env.VITE_BACKEND_URL}/api/admin/check`,
        {
         headers: {
           Authorization: `Bearer ${token}`,

@@ -72,7 +72,7 @@ const PriceCard: React.FC<PriceCardProps> = ({ plan }) => {
           return;
         }
         const { data } = await axios.post(
-          "http://localhost:5000/api/users/verifypayment",
+          `${process.env.VITE_BACKEND_URL}/api/users/verifypayment`,
           { response, plan: plan },
           {
             headers: {
@@ -107,7 +107,7 @@ const PriceCard: React.FC<PriceCardProps> = ({ plan }) => {
       }
 
       const { data } = await axios.post(
-        "http://localhost:5000/api/users/payment",
+        `${process.env.VITE_BACKEND_URL}/api/users/payment`,
         { planId, userId: userId },
         {
           headers: {
