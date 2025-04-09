@@ -12,7 +12,7 @@ const ChatHeader = () => {
     typingUsers,
     addTypingUser,
   } = useChatStore();
-
+  console.log("Selected user:", selectedUser);
   if (!selectedUser) return null;
 
   const isTyping = typingUsers.has(selectedUser._id);
