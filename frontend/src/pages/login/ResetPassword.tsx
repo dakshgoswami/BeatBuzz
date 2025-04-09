@@ -11,6 +11,7 @@ const ResetPassword = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const passwordRegex =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
@@ -35,9 +36,11 @@ const ResetPassword = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     setMessage("");
     setError("");
     if (!validateForm()) return; // Stop if validation fails
+    setIsLoading(false);
     try {
          await axiosInstance.post(
         `/users/reset-password/${token}`,
@@ -49,6 +52,9 @@ const ResetPassword = () => {
       toast.error(err.response?.data?.message || "Something went wrong", {
         icon: "❌",
       });
+    }
+    finally {
+      setIsLoading(false);
     }
   };
 
@@ -126,7 +132,7 @@ const ResetPassword = () => {
             className="bg-green-400 text-white p-2 rounded-full mt-5 hover:bg-green-500 transition duration-300 ease-in-out"
             onClick={handleSubmit}
           >
-            Reset Password
+            {isLoading ? "Resetting..." : "Reset Password"}
           </button>
         </form>
         <div className="flex justify-between items-center mt-4 text-sm">

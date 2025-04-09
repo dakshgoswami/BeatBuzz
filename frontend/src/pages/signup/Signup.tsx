@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import {axiosInstance} from "@/lib/axios";
+import { axiosInstance } from "@/lib/axios";
 import toast from "react-hot-toast";
 // import { error } from "console";
 
@@ -25,7 +25,7 @@ const Signup = () => {
   const [generatedOtp, setGeneratedOtp] = useState("");
   const [userEmail, setUserEmail] = useState("");
   const [loading, setLoading] = useState(false); // Loading state
-
+  const [otpLoading, setOtpLoading] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
@@ -85,18 +85,17 @@ const Signup = () => {
 
     if (!validateForm()) return;
     setLoading(true); // Show loading state
-    
+
     try {
-      const response = await axiosInstance.post(
-        `/users/send-otp`,
-        {
-          email: formData.email,
-          username: formData.username,
-        }
-      );
-      toast.success("OTP sent to your email. Please check your inbox.", {
-        icon: "📩",
+      const response = await axiosInstance.post(`/users/send-otp`, {
+        email: formData.email,
+        username: formData.username,
       });
+      if (response.status === 200) {
+        toast.success("OTP sent to your email. Please check your inbox.", {
+          icon: "📩",
+        });
+      }
 
       if (response.data.success) {
         setGeneratedOtp(response.data.otp);
@@ -109,11 +108,14 @@ const Signup = () => {
       }
     } catch (error: any) {
       toast.error(error.response.data.message || "Failed to send OTP!");
+    } finally {
+      setLoading(false); // Hide loading state
     }
   };
 
   const handleVerifyOtp = async () => {
     if (otp === generatedOtp) {
+      setOtpLoading(true); // Start loading
       const formDataToSend = new FormData();
       formDataToSend.append("username", formData.username);
       formDataToSend.append("fullName", formData.fullname);
@@ -129,7 +131,7 @@ const Signup = () => {
 
       try {
         const response = await axiosInstance.post(
-         `/users/signup`,
+          `/users/signup`,
           formDataToSend,
           {
             headers: { "Content-Type": "multipart/form-data" }, // Important for file upload
@@ -268,7 +270,7 @@ const Signup = () => {
               onClick={handleVerifyOtp}
               className="bg-green-400 text-white p-2 rounded-full mt-5"
             >
-              Verify OTP & Sign Up
+              {otpLoading ? "Creating Account..." : "Verify OTP & Sign Up"}
             </button>
           </div>
         )}

@@ -17,6 +17,7 @@ interface UserProfile {
 
 const EditProfile = () => {
   const { currentUser, fetchCurrentUser } = useUserFetchStore();
+  const [isLoading, setIsLoading] = useState(false); // For loading state
   const navigate = useNavigate(); // For navigation
   const [formData, setFormData] = useState<UserProfile>({
     fullName: "",
@@ -58,10 +59,15 @@ const EditProfile = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
       await updateUser(formData);
     } catch (error) {
-      console.error("Error updating profile:", error);
+      // console.error("Error updating profile:", error);
+      toast.error("Failed to update profile!");
+    }
+    finally {
+      setIsLoading(false); // Hide loading state
     }
   };
 
@@ -168,7 +174,7 @@ const EditProfile = () => {
            </div>
             <div className="flex gap-3 max-sm:flex-col max-sm:gap-2 mt-4 w-full">
               <Button type="submit" className="w-full">
-                Save Changes
+                {isLoading ? "Updating..." : "Update"}
               </Button>
               <Button
                 variant="outline"

@@ -35,7 +35,7 @@ const UsersList = () => {
                       <Avatar className="size-8 md:size-12">
                         {user.imageUrl ? (
                           <AvatarImage
-                            src={user?.imageUrl}
+                            src={user.imageUrl}
                             style={{
                               objectFit: "cover",
                               objectPosition: "center",

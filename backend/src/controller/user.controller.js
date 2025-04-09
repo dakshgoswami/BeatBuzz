@@ -96,7 +96,7 @@ export const updateProfile = async (req, res) => {
         });
       }
     }
-    
+
     let imageUrl = user.imageUrl; // Keep existing image if not updated
 
     // Ensure the uploads directory exists
@@ -261,16 +261,15 @@ export const signupUser = async (req, res, next) => {
         fs.mkdirSync(uploadDir, { recursive: true });
       }
 
-      const filePath = path.join(uploadDir, file.name);
-      console.log("File Path:", filePath);
-      console.log("File Name:", file.name);
-      await file.mv(filePath); // Move file to the uploads folder
-
-      // Set image URL for frontend retrieval
-      profilePicUrl = `https://beatbuzz.onrender.com/uploads/${file.name}`;
+      const uniqueName = `${Date.now()}-${file.name}`;
+      const filePath = path.join(uploadDir, uniqueName);
+      await file.mv(filePath);
+      profilePicUrl = `https://beatbuzz.onrender.com/uploads/${uniqueName}`;
+      
     }
 
-    const { email, password, fullName, username } = req.body;
+    const { email, password, fullName } = req.body;
+    const username = req.body.username.toLowerCase().trim();
 
     // Check if user already exists
     const existingUser = await User.findOne({ $or: [{ email }, { username }] });
@@ -379,7 +378,7 @@ export const sendOtp = async (req, res) => {
 
     await transporter.sendMail(mailOptions);
     // console.log("OTP Email Sent Successfully");
-    res.json({ success: true, otp });
+    res.json({ success: true, message: "OTP sent" });
 
     setTimeout(() => {
       delete otpStore[email];
@@ -412,7 +411,7 @@ export const forgotPassword = async (req, res) => {
       },
     });
 
-    const resetUrl = `http://:3001/reset-password/${resetToken}`;
+    const resetUrl = `https://beatbuzz-frontend.onrender.com/reset-password/${resetToken}`;
     const mailOptions = {
       from: process.env.ADMIN_EMAIL,
       to: user.email,

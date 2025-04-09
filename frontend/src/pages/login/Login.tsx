@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   // Handle input changes
@@ -39,9 +40,9 @@ const Login = () => {
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    setIsLoading(true);
     if (!validateForm()) return; // Stop if validation fails
-
+    setIsLoading(false);
     try {
       const { data } = await axiosInstance.post(
         `/users/login`,
@@ -60,6 +61,9 @@ const Login = () => {
       } else {
         toast.error("Something went wrong! Please try again.");
       }
+    }
+    finally {
+      setIsLoading(false);
     }
   };
 
@@ -121,7 +125,7 @@ const Login = () => {
             type="submit"
             className="bg-green-400 text-white p-2 rounded-full mt-5"
           >
-            Login
+            {isLoading ? "Logging in..." : "Login"}
           </button>
         </form>
         <div className="flex-col justify-center items-center mt-4 text-sm gap-2">
