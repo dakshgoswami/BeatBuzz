@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import useUserFetchStore from "@/stores/fetchUserStore";
-import axios from "axios";
+import {axiosInstance} from "@/lib/axios";
 import { useNavigate } from "react-router-dom"; // For navigation
 import { toast, ToastContainer } from "react-toastify";
 // import { describe } from "node:test";
@@ -78,8 +78,8 @@ const EditProfile = () => {
       }
       formDataToSend.append("userId", currentUser._id);
       
-      const response = await axios.post(
-        `${process.env.VITE_BACKEND_URL}/api/users/update-profile`,
+      const response = await axiosInstance.post(
+        `/users/update-profile`,
         formDataToSend,
         {
           headers: {

@@ -53,13 +53,13 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     if (!song) return;
 
     const socket = useChatStore.getState().socket;
-	const currentSong = get().currentSong;
+    const currentSong = get().currentSong;
 
     if (socket.auth) {
       socket.emit("update_activity", {
         userId: socket.auth.userId,
         activity: `Playing ${song.title} by ${song.artist}`,
-		currentSongId: currentSong ? currentSong._id : null,
+        currentSongId: currentSong ? currentSong._id : null,
       });
     }
 

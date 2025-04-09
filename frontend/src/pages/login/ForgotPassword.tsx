@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import {axiosInstance} from "@/lib/axios";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 
@@ -34,8 +34,8 @@ const ForgotPassword = () => {
     setLoading(true); // Show loading state
 
     try {
-      await axios.post(
-        `${process.env.VITE_BACKEND_URL}/api/users/forgot-password`,
+      await axiosInstance.post(
+        `/users/forgot-password`,
         { email }
       );
       toast.success("Check your email for the reset link!", { icon: "📩" });

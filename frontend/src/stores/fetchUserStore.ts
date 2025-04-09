@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import axios from "axios";
+import {axiosInstance} from "@/lib/axios";
 
 interface UserStore {
   isPremium: boolean;
@@ -20,8 +20,8 @@ const useUserFetchStore = create<UserStore>((set) => ({
   fetchUser: async (token) => {
     if (!token) return;
     try {
-      const response = await axios.get(
-        `${process.env.VITE_BACKEND_URL}/api/users/allusers`,
+      const response = await axiosInstance.get(
+        `/users/allusers`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -47,8 +47,8 @@ const useUserFetchStore = create<UserStore>((set) => ({
     if (!token) return;
 
     try {
-      const response = await axios.get(
-        `${process.env.VITE_BACKEND_URL}/api/users/current`,
+      const response = await axiosInstance.get(
+        `/users/current`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

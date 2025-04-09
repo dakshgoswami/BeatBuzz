@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import axios from "axios";
+import {axiosInstance} from "@/lib/axios";
 import toast from "react-hot-toast";
 // import { error } from "console";
 
@@ -87,8 +87,8 @@ const Signup = () => {
     setLoading(true); // Show loading state
     
     try {
-      const response = await axios.post(
-        `${process.env.VITE_BACKEND_URL}/api/users/send-otp`,
+      const response = await axiosInstance.post(
+        `/users/send-otp`,
         {
           email: formData.email,
           username: formData.username,
@@ -128,8 +128,8 @@ const Signup = () => {
       }
 
       try {
-        const response = await axios.post(
-         `${process.env.VITE_BACKEND_URL}/api/users/signup`,
+        const response = await axiosInstance.post(
+         `/users/signup`,
           formDataToSend,
           {
             headers: { "Content-Type": "multipart/form-data" }, // Important for file upload

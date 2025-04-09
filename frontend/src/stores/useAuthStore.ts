@@ -1,6 +1,5 @@
 import { create } from "zustand";
-// import {axiosInstance} from "@/lib/axios";
-import axios from "axios";
+import {axiosInstance} from "@/lib/axios";
 interface AuthStore {
   isAdmin: boolean;
   isLoading: boolean;
@@ -20,8 +19,8 @@ export const useAuthStore = create<AuthStore>((set) => ({
     try {
       const token = localStorage.getItem("token");
       // console.log(token);
-      const response = await axios.get(
-        `${process.env.VITE_BACKEND_URL}/api/admin/check`,
+      const response = await axiosInstance.get(
+        `/admin/check`,
        {
         headers: {
           Authorization: `Bearer ${token}`,

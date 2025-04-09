@@ -4,7 +4,6 @@ import { Message } from "@/types";
 import { User } from "@/types";
 import { io } from "socket.io-client";
 import { toast } from "react-toastify";
-import axios from "axios";
 // import { useMusicState } from "./useMusicStore";
 // import useUserFetchStore from "./fetchUserStore";
 
@@ -91,7 +90,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(`${process.env.VITE_BACKEND_URL}/api/users`, {
+      const response = await axiosInstance.get(`/users`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -204,7 +203,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   sendMessage: async (recieverId, senderId, content, username) => {
     const socket = get().socket;
     if (!socket) return;
-    console.log(recieverId, senderId, content, username);
+    // console.log(recieverId, senderId, content, username);
     socket.emit("send_message", { recieverId, senderId, content, username });
 
     const receiverSocketId = get().onlineUsers.has(recieverId)

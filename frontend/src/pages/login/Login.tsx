@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import axios from "axios";
+import {axiosInstance} from "@/lib/axios";
 import toast from "react-hot-toast";
 
 const Login = () => {
@@ -43,8 +43,8 @@ const Login = () => {
     if (!validateForm()) return; // Stop if validation fails
 
     try {
-      const { data } = await axios.post(
-        `${process.env.VITE_BACKEND_URL}/api/users/login`,
+      const { data } = await axiosInstance.post(
+        `/users/login`,
         formData
       );
       // console.log(data);

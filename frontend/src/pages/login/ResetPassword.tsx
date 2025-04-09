@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import {axiosInstance} from "@/lib/axios";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -39,8 +39,8 @@ const ResetPassword = () => {
     setError("");
     if (!validateForm()) return; // Stop if validation fails
     try {
-         await axios.post(
-        `${process.env.VITE_BACKEND_URL}/api/users/reset-password/${token}`,
+         await axiosInstance.post(
+        `/users/reset-password/${token}`,
         { password }
       );
       toast.success("Password reset successfully!", { icon: "✅" });

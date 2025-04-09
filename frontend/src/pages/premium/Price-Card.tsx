@@ -1,12 +1,12 @@
 import "./Price-Card.css";
-import axios from "axios";
+// import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 // import { useUser } from "@clerk/clerk-react";
 // import { useAuth } from "@clerk/clerk-react";
 import { Toaster } from "react-hot-toast";
 import useUserFetchStore from "../../stores/fetchUserStore";
-// import { axiosInstance } from "../../lib/axios";
+import { axiosInstance } from "../../lib/axios";
 // import { useAuth } from "@clerk/clerk-react"
 // console.log(useAuth);
 declare global {
@@ -71,8 +71,8 @@ const PriceCard: React.FC<PriceCardProps> = ({ plan }) => {
           toast.error("Authentication token is missing.");
           return;
         }
-        const { data } = await axios.post(
-          `${process.env.VITE_BACKEND_URL}/api/users/verifypayment`,
+        const { data } = await axiosInstance.post(
+          `/users/verifypayment`,
           { response, plan: plan },
           {
             headers: {
@@ -106,8 +106,8 @@ const PriceCard: React.FC<PriceCardProps> = ({ plan }) => {
         return;
       }
 
-      const { data } = await axios.post(
-        `${process.env.VITE_BACKEND_URL}/api/users/payment`,
+      const { data } = await axiosInstance.post(
+        `/users/payment`,
         { planId, userId: userId },
         {
           headers: {
