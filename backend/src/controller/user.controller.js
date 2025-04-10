@@ -378,7 +378,7 @@ export const sendOtp = async (req, res) => {
 
     await transporter.sendMail(mailOptions);
     // console.log("OTP Email Sent Successfully");
-    res.json({ success: true, message: "OTP sent" });
+    res.json({ success: true, otp });
 
     setTimeout(() => {
       delete otpStore[email];
