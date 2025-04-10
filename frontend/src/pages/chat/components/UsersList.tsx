@@ -19,7 +19,7 @@ const UsersList = () => {
               {isLoading ? (
                 <UsersListSkeleton />
               ) : (
-                users.map((user) => (
+                users.filter(user => onlineUsers.has(user._id)).map((user) => (
                   <div
                     key={user._id}
                     onClick={() => setSelectedUser(user)}

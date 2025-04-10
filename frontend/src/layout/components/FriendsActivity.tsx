@@ -48,7 +48,10 @@ const FriendsActivity: React.FC = () => {
   useEffect(() => {
     if (!socket) return;
 
-    const handleActivityUpdate = ({ userId, currentSongId }: ActivityUpdatePayload) => {
+    const handleActivityUpdate = ({
+      userId,
+      currentSongId,
+    }: ActivityUpdatePayload) => {
       console.log("Activity updated:", userId, currentSongId);
 
       setUserSongObj((prevObj) => {
@@ -72,7 +75,9 @@ const FriendsActivity: React.FC = () => {
     };
   }, [socket]);
 
-  const filteredUsers = users.filter((user) => userSongObj[user._id] === currentSong?._id);
+  const filteredUsers = users.filter(
+    (user) => userSongObj[user._id] === currentSong?._id
+  );
 
   const renderUserCard = (user: User) => {
     const activity = userActivities.get(user._id);
@@ -82,7 +87,13 @@ const FriendsActivity: React.FC = () => {
       <div
         key={user._id}
         className="p-3 cursor-pointer hover:bg-zinc-800/50 rounded-md transition-colors group"
-        onClick={() => (setSelectedUser({ ...user, imageUrl: user.imageUrl || "/default-avatar.png" }), navigate("/chat"))}
+        onClick={() => (
+          setSelectedUser({
+            ...user,
+            imageUrl: user.imageUrl || "/default-avatar.png",
+          }),
+          navigate("/chat")
+        )}
       >
         <div className="flex items-start gap-3">
           <div className="relative flex items-center gap-3">
@@ -108,7 +119,9 @@ const FriendsActivity: React.FC = () => {
               <span className="font-medium text-white text-sm lg:text-base truncate">
                 {user.username}
               </span>
-              {isPlaying && <Music className="size-4 text-emerald-400 shrink-0" />}
+              {isPlaying && (
+                <Music className="size-4 text-emerald-400 shrink-0" />
+              )}
             </div>
             {isPlaying ? (
               <div className="mt-1">
@@ -141,7 +154,10 @@ const FriendsActivity: React.FC = () => {
 
       <ScrollArea className="flex-1">
         <div className="p-4 space-y-4">
-          {(filteredUsers.length > 0 ? filteredUsers : users).map(renderUserCard)}
+          {(filteredUsers.length > 0
+            ? filteredUsers
+            : users.filter((user) => onlineUsers.has(user._id))
+          ).map(renderUserCard)}{" "}
         </div>
       </ScrollArea>
     </div>

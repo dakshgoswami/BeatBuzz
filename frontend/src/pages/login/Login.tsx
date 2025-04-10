@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import {axiosInstance} from "@/lib/axios";
+import { axiosInstance } from "@/lib/axios";
 import toast from "react-hot-toast";
 
 const Login = () => {
@@ -42,12 +42,8 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
     if (!validateForm()) return; // Stop if validation fails
-    setIsLoading(false);
     try {
-      const { data } = await axiosInstance.post(
-        `/users/login`,
-        formData
-      );
+      const { data } = await axiosInstance.post(`/users/login`, formData);
       // console.log(data);
       // Save token to local storage
       localStorage.setItem("token", data.token);
@@ -61,8 +57,7 @@ const Login = () => {
       } else {
         toast.error("Something went wrong! Please try again.");
       }
-    }
-    finally {
+    } finally {
       setIsLoading(false);
     }
   };
