@@ -154,10 +154,10 @@ const FriendsActivity: React.FC = () => {
 
       <ScrollArea className="flex-1">
         <div className="p-4 space-y-4">
-          {(filteredUsers.length > 0
-            ? filteredUsers
-            : users.filter((user) => onlineUsers.has(user._id))
-          ).map(renderUserCard)}{" "}
+          {Array.from(onlineUsers)
+            .map((id) => users.find((user) => user._id === id))
+            .filter(Boolean)
+            .map(renderUserCard)}
         </div>
       </ScrollArea>
     </div>
