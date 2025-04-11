@@ -75,7 +75,7 @@ const FriendsActivity: React.FC = () => {
     };
   }, [socket]);
 
-  const filteredUsers = users.filter(
+  users.filter(
     (user) => userSongObj[user._id] === currentSong?._id
   );
 
